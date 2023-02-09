@@ -2,7 +2,7 @@
 About:
 A better way to use Windows Command Prompt.
 <br><br>
-Changes:
+Features:
 <br>
 cmd, del, start - (Change) Added fuzzy search support
 <br>
