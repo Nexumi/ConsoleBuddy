@@ -21,7 +21,7 @@ def fuzzy(path):
 
     ld = len(dirs)
     if ld == 0:
-        raise Exception("[WinError 2] The system cannot find the file specified: " + path)
+        raise Exception("[WinError 2] The system cannot find the file specified: '" + path + "'")
     elif ld == 1:
         return dirs[0]
     else:
