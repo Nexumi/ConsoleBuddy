@@ -1,8 +1,26 @@
 import os
 import shutil
+import subprocess
 from zipfile import ZipFile
 
-cmd = ""
+def find(directory, folder, program):
+    if os.path.exists(directory):
+        for file in os.listdir(directory):
+            if file.lower() == folder.lower():
+                if program in os.listdir(directory + "/" + file):
+                    return directory + "/" + file + "/" + program
+
+def locate(folder, program):
+    drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    for letter in drives:
+        directory = letter + ":/Program Files"
+        found = find(directory, folder, program)
+        if found:
+            return found
+        directory += " (x86)"
+        found = find(directory, folder, program)
+        if found:
+            return found
 
 def header(line = ""):
     os.system("cls")
@@ -21,7 +39,7 @@ def fuzzy(path):
 
     ld = len(dirs)
     if ld == 0:
-        raise Exception("[WinError 2] The system cannot find the file specified: '" + path + "'")
+        return path
     elif ld == 1:
         return dirs[0]
     else:
@@ -33,7 +51,8 @@ def fuzzy(path):
             opt = int(input("Option> ")) - 1
             return dirs[opt]
         except:
-            return "."
+            header("\n")
+            return path
 
 def command(cmd):
     try:
@@ -44,15 +63,14 @@ def command(cmd):
                 os.system(cmd[0])
                 return
 
-            if cmd[1].replace("/", "") == "." or cmd[1].replace("/", "") == "..":
-                os.chdir(cmd[1])
-            else:
-                os.chdir(fuzzy(cmd[1]))
+            os.chdir(fuzzy(cmd[1]))
             header()
         elif cmd[0] == "del":
             path = fuzzy(cmd[1])
             if path == ".":
-                header()
+                header("\n")
+                print("WARNING: del . is disabled as it deletes everything in the current directory.")
+                print("If you want to delete everything, delete the folder: cd .. > del folder_name")
                 return
             if os.path.isfile(path):
                 os.remove(path)
@@ -60,12 +78,31 @@ def command(cmd):
                 shutil.rmtree(path)
             header()
         elif cmd[0] == "copy":
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
             parm = cmd[1].split(" ")
             shutil.copy2(parm[0], parm[1])
             header()
         elif cmd[0] == "start":
-            os.system("start \"" + fuzzy(cmd[1]) + "\"")
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
+            os.startfile(fuzzy(cmd[1]))
             header()
+        elif cmd[0] == "startwith":
+            program = cmd[1].split()
+            if program[0].lower() == "notepad++":
+                subprocess.Popen([notepad_plus_plus, fuzzy(" ".join(program[1:]))])
+            elif program[0].lower() == "sublime":
+                subprocess.Popen([sublime_text, fuzzy(" ".join(program[1:]))])
+            elif " ".join(program[:2]).lower() == "sublime text":
+                subprocess.Popen([sublime_text, fuzzy(" ".join(program[2:]))])
+        elif cmd[0] == "eval":
+            eval(cmd[1])
+        elif cmd[0] == "programs":
+            print(notepad_plus_plus)
+            print(sublime_text)
         elif cmd[0] == "unzipper":
             zips = os.listdir()
             i = 0
@@ -86,6 +123,10 @@ def command(cmd):
             os.system(" ".join(cmd))
     except Exception as e:
         print(e)
+
+cmd = ""
+notepad_plus_plus = locate("Notepad++", "notepad++.exe")
+sublime_text = locate("Sublime Text", "sublime_text.exe")
 
 header("\n")
 while cmd.lower() != "exit":
