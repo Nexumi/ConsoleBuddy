@@ -54,11 +54,23 @@ def fuzzy(path):
             header("\n")
             return path
 
+def getRubric():
+    listdir = os.listdir()
+    results = []
+    for idir in listdir:
+        found = idir.find("-Rubric.xlsx")
+        if found != -1:
+            results.append(idir[11:found])
+            results.append(idir)
+            return results
+
 def command(cmd):
     try:
         cmd = cmd.split(" ", 1)
         cmd[0] = cmd[0].lower()
-        if cmd[0] == "cd":
+        if cmd[0] == "help":
+            pass
+        elif cmd[0] == "cd":
             if len(cmd) == 1:
                 os.system(cmd[0])
                 return
@@ -77,32 +89,25 @@ def command(cmd):
             else:
                 shutil.rmtree(path)
             header()
-        elif cmd[0] == "copy":
-            if len(cmd) == 1:
-                os.system(cmd[0])
-                return
-            parm = cmd[1].split(" ")
-            shutil.copy2(parm[0], parm[1])
-            header()
         elif cmd[0] == "start":
             if len(cmd) == 1:
                 os.system(cmd[0])
                 return
             os.startfile(fuzzy(cmd[1]))
             header()
-        elif cmd[0] == "startwith":
-            program = cmd[1].split()
-            if program[0].lower() == "notepad++":
-                subprocess.Popen([notepad_plus_plus, fuzzy(" ".join(program[1:]))])
-            elif program[0].lower() == "sublime":
-                subprocess.Popen([sublime_text, fuzzy(" ".join(program[1:]))])
-            elif " ".join(program[:2]).lower() == "sublime text":
-                subprocess.Popen([sublime_text, fuzzy(" ".join(program[2:]))])
-        elif cmd[0] == "eval":
-            eval(cmd[1])
-        elif cmd[0] == "programs":
-            print(notepad_plus_plus)
-            print(sublime_text)
+        elif cmd[0] == "copy":
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
+            parm = cmd[1].split(" ")
+            shutil.copy2(fuzzy(parm[0]), fuzzy(parm[1]))
+            header()
+        elif cmd[0] == "move":
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
+            parm = cmd[1].split(" ")
+            os.system(cmd[0] + " \"" + fuzzy(parm[0]) + "\" \"" + fuzzy(parm[1] + "\""))
         elif cmd[0] == "unzipper":
             zips = os.listdir()
             i = 0
@@ -119,6 +124,28 @@ def command(cmd):
                 os.remove(izip)
             
             header()
+        elif cmd[0] == "startwith":
+            program = cmd[1].split()
+            if program[0].lower() == "notepad++":
+                subprocess.Popen([notepad_plus_plus, fuzzy(" ".join(program[1:]))])
+            elif program[0].lower() == "sublime":
+                subprocess.Popen([sublime_text, fuzzy(" ".join(program[1:]))])
+            elif " ".join(program[:2]).lower() == "sublime text":
+                subprocess.Popen([sublime_text, fuzzy(" ".join(program[2:]))])
+        elif cmd[0] == "eval":
+            eval(cmd[1])
+        elif cmd[0] == "programs":
+            if notepad_plus_plus:
+                print(notepad_plus_plus)
+            if sublime_text:
+                print(sublime_text)
+        elif cmd[0] == "generate":
+            if len(cmd) == 1:
+                result = getRubric()
+                os.system("generateStudentRubrics.exe --assignment=\"" + result[0] + "\" --inputFile=studentNames.txt --fileToCopy=" + result[1])
+                return
+            files = cmd[1].split()
+            os.system("generateStudentRubrics.exe --assignment=\"" + files[1][11:files[1].find("-Rubric.xlsx")] + "\" --inputFile=" + files[0] + " --fileToCopy=" + files[1])
         else:
             os.system(" ".join(cmd))
     except Exception as e:
