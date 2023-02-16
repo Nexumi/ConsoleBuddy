@@ -35,7 +35,7 @@ Support:
   <li>Install Python [https://www.python.org/]</li>
   <li>Install PyInstaller [https://pyinstaller.org/en/stable/]</li>
   <li>(Optional) Download UPX [https://upx.github.io/]</li>
-  <li>Run "pyinstaller --onefile consoleBuddy.py"</li>
+  <li>Run `pyinstaller --onefile consoleBuddy.py`</li>
   <li>Grab exe from the "dist" folder</li>
   <li>Discard everything else it creates</li>
 </ul>
