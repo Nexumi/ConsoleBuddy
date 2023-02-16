@@ -58,7 +58,7 @@ def fuzzy(file, path = "."):
 
         try:
             opt = int(input("Option> ")) - 1
-            header()
+            header("\n")
             return dirs[opt]
         except:
             header("\n")
@@ -76,12 +76,11 @@ def getRubric():
 
 def command(cmd):
     global rubrics
+    global top
     try:
         cmd = cmd.split(" ", 1)
         cmd[0] = cmd[0].lower()
-        if cmd[0] == "help":
-            pass
-        elif cmd[0] == "cd":
+        if cmd[0] == "cd":
             if len(cmd) == 1:
                 os.system(cmd[0])
                 return
@@ -119,6 +118,11 @@ def command(cmd):
                 return
             parm = cmd[1].split(" ")
             os.system(cmd[0] + " \"" + fuzzy(parm[0]) + "\" \"" + fuzzy(parm[1] + "\""))
+        elif cmd[0] == "java":
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
+            os.system("java " + fuzzy(cmd[1])[:-6])
         elif cmd[0] == "unzipper":
             zips = os.listdir()
             i = 0
@@ -137,12 +141,20 @@ def command(cmd):
             header()
         elif cmd[0] == "startwith":
             program = cmd[1].split()
-            if program[0].lower() == "notepad++":
-                subprocess.Popen([notepad_plus_plus, fuzzy(" ".join(program[1:]))])
-            elif program[0].lower() == "sublime":
-                subprocess.Popen([sublime_text, fuzzy(" ".join(program[1:]))])
-            elif " ".join(program[:2]).lower() == "sublime text":
-                subprocess.Popen([sublime_text, fuzzy(" ".join(program[2:]))])
+            if notepad_plus_plus and program[0].lower() == "notepad++":
+                java = fuzzy(" ".join(program[1:]))
+                subprocess.Popen([notepad_plus_plus, java])
+                print("Opening " + java)
+            elif sublime_text and " ".join(program[:2]).lower() == "sublime text":
+                java = fuzzy(" ".join(program[2:]))
+                subprocess.Popen([sublime_text, java])
+                print("Opening " + java)
+            elif sublime_text and program[0].lower() == "sublime":
+                java = fuzzy(" ".join(program[1:]))
+                subprocess.Popen([sublime_text, java])
+                print("Opening " + java)
+            else:
+                print("Program not found or not defined")
         elif cmd[0] == "eval":
             eval(cmd[1])
         elif cmd[0] == "programs":
@@ -160,17 +172,20 @@ def command(cmd):
         elif cmd[0] == "set":
             if cmd[1].lower() == "rubrics":
                 rubrics = os.getcwd()
-                print("rubics = " + rubrics)
+                print("rubrics = " + rubrics)
+            elif cmd[1].lower() == "top":
+                top = os.getcwd()
+                print("top = " + top)
         elif cmd[0] == "rubric":
             if not rubrics:
                 print("Location not set")
             else:
                 if len(cmd) == 1:
-                    print(rubrics)
+                    print("rubrics = " + rubrics)
                 else:
                     rubric = fuzzy(cmd[1], rubrics)
                     os.startfile(rubrics + "\\" + rubric)
-                    print("\nOpening " + rubric)
+                    print("Opening " + rubric)
         elif cmd[0] == "pretty":
             os.system("cls")
             print(("\033[4mCurrent Directory: " + os.getcwd().split("\\")[-1] + "\033[0m").center(os.get_terminal_size().columns))
@@ -184,6 +199,9 @@ def command(cmd):
                     display(name)
                 else:
                     print(" * " + idir)
+        elif cmd[0] == "top":
+            os.chdir(top)
+            header()
         else:
             os.system(" ".join(cmd))
     except Exception as e:
@@ -193,6 +211,7 @@ cmd = ""
 notepad_plus_plus = locate("Notepad++", "notepad++.exe")
 sublime_text = locate("Sublime Text", "sublime_text.exe")
 rubrics = None
+top = os.getcwd()
 
 header("\n")
 while cmd.lower().strip() != "exit":
