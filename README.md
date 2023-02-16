@@ -11,7 +11,7 @@ unzipper - (New) Unzips every zip file in the current directory
 
 startwith - (New) Open file with specified program \[startwith \<program\> \<file\>\]
 
-locations - (New) Lists all locations that are saved by the script (Currently only finds Sublime Text and Notepad++)
+programs - (New) Lists programs that were found by the script (Currently only finds Sublime Text and Notepad++)
 
 generate - (New) Runs Benjamin’s rubric generator \[generate \<input file\> \<file to copy\>\] (Leave parameters blank if file names are left default and only 1 rubric file is present)
 
