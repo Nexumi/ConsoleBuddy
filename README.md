@@ -5,21 +5,15 @@
 ## Features
 Always displays current directory and all files and folders in that directory
 
-cd, del, start, copy, move - (Change) Added fuzzy search support
-
-unzipper - (New) Unzips every zip file in the current directory
-
-startwith - (New) Open file with specified program \[startwith \<program\> \<file\>\]
-
-programs - (New) Lists programs that were found by the script (Currently only finds Sublime Text and Notepad++)
-
-generate - (New) Runs Benjamin’s rubric generator \[generate \<input file\> \<file to copy\>\] (Leave parameters blank if file names are left default and only 1 rubric file is present)
-
-set - (New) Save the current location as a location needed to be used by other commands \[set rubrics\] (Only supports setting the location of rubrics)
-
-rubric - (New) Using the saved location, opens the rubric of the student you request to open \[rubric \<name\>\] (Name is based on file name)
-
-pretty - (New) Pretty prints the files of the current directory (Only works on correctly named files)
+- cd, del, start, copy, move, java - (Change) Added fuzzy search support
+- unzipper - (New) Unzips every zip file in the current directory
+- startwith - (New) Open file with specified program \[startwith \<program\> \<file\>\]
+- programs - (New) Lists programs that were found by the script (Currently only finds Sublime Text and Notepad++)
+- generate - (New) Runs Benjamin’s rubric generator \[generate \<input file\> \<file to copy\>\] (Leave parameters blank if file names are left default and only 1 rubric file is present)
+- set - (New) Save the current location needed to be used by other commands [set <rubrics/top>]
+- rubric - (New) Finds and opens rubric found from saved location [rubric <name>] (Name is based on file name)
+- pretty - (New) Pretty prints the files of the current directory (Only works on correctly named files)
+- top - (New) Jumps back to the saved location
 
 
 ## Support
