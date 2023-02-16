@@ -31,9 +31,9 @@ pretty - (New) Pretty prints the files of the current directory (Only works on c
 
 
 ## Self Compilation
-- Install Python [https://www.python.org/]
-- Install PyInstaller [https://pyinstaller.org/en/stable/]
-- (Optional) Download UPX [https://upx.github.io/]
+- Install [Python](https://www.python.org/)
+- Install [PyInstaller](https://pyinstaller.org/en/stable/)
+- (Optional) [Download UPX](https://upx.github.io/)
 - Run `pyinstaller --onefile consoleBuddy.py`
 - Grab exe from the "dist" folder
 - Discard everything else it creates
