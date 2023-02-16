@@ -21,10 +21,14 @@ rubric - (New) Using the saved location, opens the rubric of the student you req
 
 pretty - (New) Pretty prints the files of the current directory (Only works on correctly named files)
 
-Support:
+
+## Support
 ✔️ Windows
+
 ❌ MacOS
+
 ❌ Linux
+
 
 ## Self Compilation
 - Install Python [https://www.python.org/]
