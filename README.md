@@ -11,7 +11,7 @@ Always displays current directory and all files and folders in that directory
 - programs - (New) Lists programs that were found by the script (Currently only finds Sublime Text and Notepad++)
 - generate - (New) Runs Benjamin’s rubric generator \[generate \<input file\> \<file to copy\>\] (Leave parameters blank if file names are left default and only 1 rubric file is present)
 - set - (New) Save the current location needed to be used by other commands [set <rubrics/top>]
-- rubric - (New) Finds and opens rubric found from saved location [rubric <name>] (Name is based on file name)
+- rubric - (New) Finds and opens rubric from the saved location [rubric <name>] (Name is based on file name)
 - pretty - (New) Pretty prints the files of the current directory (Only works on correctly named files)
 - top - (New) Jumps back to the saved location
 
