@@ -36,15 +36,6 @@ def display(name):
             print(letter, end = "")
     print()
 
-def grader(done):
-    os.system("cls")
-    print(("\033[4m" + os.getcwd() + "\033[0m"))
-    for idir in os.listdir():
-        xdir = idir.split("_")
-        if xdir not in done and len(xdir) == 4:
-            name = xdir[3].split("-")[0]
-            display(name)
-
 def fuzzy(file, path = "."):
     dirs = []
     listdir = os.listdir(path)
@@ -67,6 +58,7 @@ def fuzzy(file, path = "."):
 
         try:
             opt = int(input("Option> ")) - 1
+            header()
             return dirs[opt]
         except:
             header("\n")
@@ -153,13 +145,11 @@ def command(cmd):
                 subprocess.Popen([sublime_text, fuzzy(" ".join(program[2:]))])
         elif cmd[0] == "eval":
             eval(cmd[1])
-        elif cmd[0] == "locations":
+        elif cmd[0] == "programs":
             if notepad_plus_plus:
                 print(notepad_plus_plus)
             if sublime_text:
                 print(sublime_text)
-            if rubrics:
-                print(rubrics)
         elif cmd[0] == "generate":
             if len(cmd) == 1:
                 result = getRubric()
@@ -172,9 +162,15 @@ def command(cmd):
                 rubrics = os.getcwd()
                 print("rubics = " + rubrics)
         elif cmd[0] == "rubric":
-            if len(cmd) != 1 and rubrics:
-                os.startfile(rubrics + "\\" + fuzzy(cmd[1], rubrics))
-                header()
+            if not rubrics:
+                print("Location not set")
+            else:
+                if len(cmd) == 1:
+                    print(rubrics)
+                else:
+                    rubric = fuzzy(cmd[1], rubrics)
+                    os.startfile(rubrics + "\\" + rubric)
+                    print("\nOpening " + rubric)
         elif cmd[0] == "pretty":
             os.system("cls")
             print(("\033[4mCurrent Directory: " + os.getcwd().split("\\")[-1] + "\033[0m").center(os.get_terminal_size().columns))
