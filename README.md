@@ -29,5 +29,5 @@ Always displays current directory and all files and folders in that directory
 - Install [PyInstaller](https://pyinstaller.org/en/stable/)
 - (Optional) Download [UPX](https://upx.github.io/)
 - Run `pyinstaller --onefile consoleBuddy.py`
-- Grab exe from the "dist" folder
+- Grab the `.exe` from the `dist` folder
 - Discard everything else it creates
