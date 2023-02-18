@@ -27,7 +27,7 @@ Always displays current directory and all files and folders in that directory
 ## Self Compilation
 - Install [Python](https://www.python.org/)
 - Install [PyInstaller](https://pyinstaller.org/en/stable/)
-- (Optional) [Download UPX](https://upx.github.io/)
+- (Optional) Download [UPX](https://upx.github.io/)
 - Run `pyinstaller --onefile consoleBuddy.py`
 - Grab exe from the "dist" folder
 - Discard everything else it creates
