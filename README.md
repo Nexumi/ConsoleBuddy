@@ -14,7 +14,8 @@ Always displays current directory and all files and folders in that directory
 - rubric - (New) Finds and opens rubric from the saved location [rubric <name>] (Name is based on file name)
 - pretty - (New) Pretty prints the files of the current directory (Only works on correctly named files)
 - top - (New) Jumps back to the saved location
-
+- update - (New) Automatically downloads and replaces the current install of your ConsoleBuddy
+- version - (New) Shows the current version of ConsoleBuddy that you are using and also checks for updates
 
 ## Support
 ✔️ Windows
@@ -22,7 +23,6 @@ Always displays current directory and all files and folders in that directory
 ❌ MacOS
 
 ❌ Linux
-
 
 ## Self Compilation
 - Install [Python](https://www.python.org/)
