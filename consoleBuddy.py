@@ -19,10 +19,11 @@ def update(download = False):
             input("Press enter to reload...")
             os.system(__file__)
             cmd = "exit"
+            return
         else:
             print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
             print("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
-            return "meow"
+            cmd = "meow"
     else:
         if download:
             print("[\033[34mnotice\033[0m] ConsoleBuddy is up-to-date")
@@ -236,7 +237,8 @@ rubrics = None
 top = os.getcwd()
 
 header("\n")
-cmd = update()
+cmd = ""
+update()
 while cmd.lower().strip() != "exit":
     if cmd.strip() != "":
         print()
