@@ -109,6 +109,9 @@ def command(cmd):
             os.chdir(fuzzy(cmd[1]))
             header()
         elif cmd[0] == "del":
+            if len(cmd) == 1:
+                os.system(cmd[0])
+                return
             path = fuzzy(cmd[1])
             if path == ".":
                 header("\n")
