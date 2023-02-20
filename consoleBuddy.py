@@ -1,7 +1,31 @@
+v = "v0.2"
+
 import os
 import shutil
 import subprocess
 from zipfile import ZipFile
+from urllib.request import urlopen, urlretrieve
+
+def update(download = False):
+    global cmd
+    url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/consoleBuddy.py"
+    for line in urlopen(url):
+        r = str(line)[7:-6]
+        break
+    if v != r:
+        if download:
+            urlretrieve(url, __file__)
+            print("[\033[34mnotice\033[0m] Successfully installed ConsoleBuddy \033[32m" + r + "\033[0m")
+            input("Press enter to reload...")
+            os.system(__file__)
+            cmd = "exit"
+        else:
+            print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
+            print("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
+            return "meow"
+    else:
+        if download:
+            print("[\033[34mnotice\033[0m] ConsoleBuddy is up-to-date")
 
 def find(directory, folder, program):
     if os.path.exists(directory):
@@ -42,10 +66,8 @@ def fuzzy(file, path = "."):
     for idir in listdir:
         if idir.lower() == file.lower():
             return idir
-
         if idir.lower().find(file.lower()) != -1:
             dirs.append(idir)
-
     ld = len(dirs)
     if ld == 0:
         return file
@@ -55,7 +77,6 @@ def fuzzy(file, path = "."):
         for i in range(ld):
             print(str(i + 1) + ") " + dirs[i])
         print()
-
         try:
             opt = int(input("Option> ")) - 1
             header("\n")
@@ -84,7 +105,6 @@ def command(cmd):
             if len(cmd) == 1:
                 os.system(cmd[0])
                 return
-
             os.chdir(fuzzy(cmd[1]))
             header()
         elif cmd[0] == "del":
@@ -122,7 +142,7 @@ def command(cmd):
             if len(cmd) == 1:
                 os.system(cmd[0])
                 return
-            os.system("java " + fuzzy(cmd[1])[:-6])
+            os.system("java " + fuzzy(cmd[1]).replace(".class", ""))
         elif cmd[0] == "unzipper":
             zips = os.listdir()
             i = 0
@@ -131,13 +151,11 @@ def command(cmd):
                     zips.pop(i)
                 else:
                     i += 1
-                    
             for izip in zips:
                 os.mkdir(izip[:-4])
                 with ZipFile(izip, 'r') as zipObj:
-                    zipObj.extractall(path=izip[:-4])
+                  zipObj.extractall(path=izip[:-4])
                 os.remove(izip)
-            
             header()
         elif cmd[0] == "startwith":
             program = cmd[1].split()
@@ -202,18 +220,23 @@ def command(cmd):
         elif cmd[0] == "top":
             os.chdir(top)
             header()
+        elif cmd[0] == "update":
+            update(True)
+        elif cmd[0] == "version":
+            print("ConsoleBuddy " + v)
+            update()
         else:
             os.system(" ".join(cmd))
     except Exception as e:
         print(e)
 
-cmd = ""
 notepad_plus_plus = locate("Notepad++", "notepad++.exe")
 sublime_text = locate("Sublime Text", "sublime_text.exe")
 rubrics = None
 top = os.getcwd()
 
 header("\n")
+cmd = update()
 while cmd.lower().strip() != "exit":
     if cmd.strip() != "":
         print()
