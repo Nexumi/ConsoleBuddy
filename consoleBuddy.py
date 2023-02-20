@@ -17,7 +17,7 @@ def update(download = False):
             urlretrieve(url, __file__)
             print("[\033[34mnotice\033[0m] Successfully installed ConsoleBuddy \033[32m" + r + "\033[0m")
             input("Press enter to reload...")
-            os.system(__file__)
+            os.system("\"" + __file__ + "\"")
             cmd = "exit"
             return
         else:
