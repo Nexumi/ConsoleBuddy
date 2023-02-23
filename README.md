@@ -1,4 +1,4 @@
-# GraderBuddy
+# ConsoleBuddy
 
 > A better way to use Windows Command Prompt.
 
@@ -22,8 +22,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - pretty - (New) Pretty prints the files of the current directory
   - Only works on correctly named files
 - top - (New) Jumps back to the saved location
-- update - (New) Automatically downloads and replaces the current install of your GraderBuddy
-- version - (New) Shows the current version of GraderBuddy that you are using and also checks for updates
+- update - (New) Automatically downloads and replaces the current install of your ConsoleBuddy
+- version - (New) Shows the current version of ConsoleBuddy that you are using and also checks for updates
 - setup - (New) Unzips and generates the rubrics for the current submissions
   - Usage: setup <assignment> <grader’s name>
 
@@ -39,6 +39,6 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - Install [Python](https://www.python.org/)
 - Install [PyInstaller](https://pyinstaller.org/en/stable/)
 - (Optional) Download [UPX](https://upx.github.io/)
-- Run `pyinstaller --onefile GraderBuddy.py`
+- Run `pyinstaller --onefile ConsoleBuddy.py`
 - Grab the `.exe` from the `dist` folder
 - Discard everything else it creates
