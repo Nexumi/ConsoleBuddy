@@ -14,23 +14,23 @@ def reload():
 
 def update(download = False):
     global cmd
-    url = "https://raw.githubusercontent.com/Nexumi/GraderBuddy/main/GraderBuddy.py"
+    url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
     for line in urlopen(url):
         r = str(line)[7:-6]
         break
     if v != r:
         if download:
             urlretrieve(url, __file__)
-            print("[\033[34mnotice\033[0m] Successfully installed GraderBuddy \033[32m" + r + "\033[0m")
+            print("[\033[34mnotice\033[0m] Successfully installed ConsoleBuddy \033[32m" + r + "\033[0m")
             input("Press enter to relaunch...")
             reload()
         else:
-            print("[\033[34mnotice\033[0m] A new release of GraderBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
+            print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
             print("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
             cmd = "update"
     else:
         if download:
-            print("[\033[34mnotice\033[0m] GraderBuddy is up-to-date")
+            print("[\033[34mnotice\033[0m] ConsoleBuddy is up-to-date")
 
 def find(directory, folder, program):
     if os.path.exists(directory):
@@ -269,7 +269,7 @@ def command(cmd):
         elif cmd[0] == "update":
             update(True)
         elif cmd[0] == "version":
-            print("GraderBuddy " + v)
+            print("ConsoleBuddy " + v)
             update()
         elif cmd[0] == "setup":
             if len(cmd) == 1:
