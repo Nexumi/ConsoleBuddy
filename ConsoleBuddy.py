@@ -16,13 +16,13 @@ def reload():
 
 def update(download = False):
     global cmd
-    url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
+    url = "https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy.exe"
     for line in urlopen(url):
         r = str(line)[7:-6]
         break
     if v != r:
         if download:
-            urlretrieve(url, __file__)
+            urlretrieve(url, program)
             print("[\033[34mnotice\033[0m] Successfully installed ConsoleBuddy \033[32m" + r + "\033[0m")
             input("Press enter to relaunch...")
             reload()
