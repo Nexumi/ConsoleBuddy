@@ -4,35 +4,24 @@ import os
 from zipfile import ZipFile
 from subprocess import Popen
 from shutil import copy2, rmtree
+from webbrowser import open as web
 from urllib.request import urlopen, urlretrieve
 
 def reload():
     global cmd
-    if "AppData\\Local\\Temp" in __file__:
-        os.startfile(program)
-    else:
-        os.startfile(__file__)
+    os.startfile(__file__)
     cmd = "exit"
 
-def update(download = False):
+def update():
     global cmd
-    url = "https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy.exe"
+    url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
     for line in urlopen(url):
         r = str(line)[7:-6]
         break
     if v != r:
-        if download:
-            urlretrieve(url, program)
-            print("[\033[34mnotice\033[0m] Successfully installed ConsoleBuddy \033[32m" + r + "\033[0m")
-            input("Press enter to relaunch...")
-            reload()
-        else:
-            print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
-            print("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
-            cmd = "update"
-    else:
-        if download:
-            print("[\033[34mnotice\033[0m] ConsoleBuddy is up-to-date")
+        print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
+        print("[\033[34mnotice\033[0m] To go to download page, run: \033[32mupdate\033[0m")
+        cmd = "update"
 
 def find(directory, folder, program):
     if os.path.exists(directory):
@@ -271,7 +260,8 @@ def command(cmd):
             os.chdir(top)
             header()
         elif cmd[0] == "update":
-            update(True)
+            web("https://github.com/Nexumi/ConsoleBuddy/releases")
+            header()
         elif cmd[0] == "version":
             print("ConsoleBuddy " + v)
             update()
