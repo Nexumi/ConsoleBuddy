@@ -1,15 +1,17 @@
-v = "v0.3"
+v = "v0.3.1"
 
 import os
-import shutil
-import subprocess
-from validators import url
 from zipfile import ZipFile
+from subprocess import Popen
+from shutil import copy2, rmtree
 from urllib.request import urlopen, urlretrieve
 
 def reload():
     global cmd
-    os.startfile(__file__)
+    if "AppData\\Local\\Temp" in __file__:
+        os.startfile(program)
+    else:
+        os.startfile(__file__)
     cmd = "exit"
 
 def update(download = False):
@@ -126,7 +128,9 @@ def generate(cmd, refresh = True):
     rubric = "Assignment-" + cmd[0] + "-Rubric.xlsx"
     folder = rubric[:-5] + "s"
     names = namelist(cmd[1])
-    if not url("https://jpweb.ml/grader-rubrics/" + rubric):
+    try:
+        urlopen("https://jpweb.ml/grader-rubrics/" + rubric)
+    except:
         missing = "rubric"
         if not names:
             missing += " and grader"
@@ -139,7 +143,7 @@ def generate(cmd, refresh = True):
     os.chdir(folder)
     urlretrieve("https://jpweb.ml/grader-rubrics/" + rubric, rubric)
     for name in names:
-        shutil.copy2(rubric, name + "-" + rubric)
+        copy2(rubric, name + "-" + rubric)
     os.remove(rubric)
     rubrics = os.getcwd()
     os.chdir("..")
@@ -172,7 +176,7 @@ def command(cmd):
             if os.path.isfile(path):
                 os.remove(path)
             else:
-                shutil.rmtree(path)
+                rmtree(path)
             header()
         elif cmd[0] == "start":
             if len(cmd) == 1:
@@ -185,7 +189,7 @@ def command(cmd):
                 os.system(cmd[0])
                 return
             parm = cmd[1].split(" ")
-            shutil.copy2(fuzzy(parm[0]), fuzzy(parm[1]))
+            copy2(fuzzy(parm[0]), fuzzy(parm[1]))
             header()
         elif cmd[0] == "move":
             if len(cmd) == 1:
@@ -205,15 +209,15 @@ def command(cmd):
             program = cmd[1].split()
             if notepad_plus_plus and program[0].lower() == "notepad++":
                 java = fuzzy(" ".join(program[1:]))
-                subprocess.Popen([notepad_plus_plus, java])
+                Popen([notepad_plus_plus, java])
                 print("Opening " + java)
             elif sublime_text and " ".join(program[:2]).lower() == "sublime text":
                 java = fuzzy(" ".join(program[2:]))
-                subprocess.Popen([sublime_text, java])
+                Popen([sublime_text, java])
                 print("Opening " + java)
             elif sublime_text and program[0].lower() == "sublime":
                 java = fuzzy(" ".join(program[1:]))
-                subprocess.Popen([sublime_text, java])
+                Popen([sublime_text, java])
                 print("Opening " + java)
             else:
                 print("Program not found or not defined")
@@ -302,6 +306,7 @@ notepad_plus_plus = locate("Notepad++", "notepad++.exe")
 sublime_text = locate("Sublime Text", "sublime_text.exe")
 rubrics = None
 top = os.getcwd()
+program = top + "\\" + os.path.basename(__file__)[:-3] + ".exe"
 
 header("\n")
 cmd = ""
