@@ -259,7 +259,7 @@ def command(cmd):
         elif cmd[0] == "top":
             os.chdir(top)
             header()
-        elif cmd[0] == "update":
+        elif cmd[0] == "download":
             web("https://github.com/Nexumi/ConsoleBuddy/releases")
             header()
         elif cmd[0] == "version":
