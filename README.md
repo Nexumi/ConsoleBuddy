@@ -42,3 +42,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - Run `pyinstaller --onefile ConsoleBuddy.py`
 - Grab the `.exe` from the `dist` folder
 - Discard everything else it creates
+
+## Direct Run
+- Install [Python](https://www.python.org/)
+- Run file
+- Profit
