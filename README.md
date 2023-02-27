@@ -44,5 +44,5 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - Install [PyInstaller](https://pyinstaller.org/en/stable/)
 - (Optional) Download [UPX](https://upx.github.io/)
 - Run `pyinstaller --onefile ConsoleBuddy.py`
-- Grab the `.exe` from the `dist` folder
+- Grab the file from the `dist` folder
 - Discard everything else it creates
