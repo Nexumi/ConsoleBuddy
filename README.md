@@ -36,7 +36,7 @@ All commands support fuzzy search (You do not have to spell out the full file na
 
 ## Direct Run
 - Install [Python](https://www.python.org/)
-- Run file
+- Run `py` file
 - Profit
 
 ## Self Compilation
