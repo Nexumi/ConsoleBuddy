@@ -16,7 +16,7 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - generate - (New) Generates rubrics for all students
   - Usage: generate \<assignment\> \<grader’s name\>
 - set - (New) Save the current location needed to be used by other commands
-  - Usage: set <rubrics/top>
+  - Usage: set \<rubrics/top\>
 - rubric - (New) Finds and opens rubric from the saved location
   - rubric \<file\>
 - pretty - (New) Pretty prints the files of the current directory
@@ -26,6 +26,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - version - (New) Shows the current version of ConsoleBuddy that you are using and also checks for updates
 - setup - (New) Unzips and generates the rubrics for the current submissions
   - Usage: setup \<assignment\> \<grader’s name\>
+- assignment - (New) Opens up the assignment pdf
+	- Usage: assignment \<assignment\>
 
 ## Support
 ✔️ Windows
