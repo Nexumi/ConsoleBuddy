@@ -1,4 +1,4 @@
-v = "v0.3.1"
+v = "v0.3.2"
 
 import os
 from zipfile import ZipFile
@@ -15,12 +15,13 @@ def reload():
 def update():
     global cmd
     url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
-    for line in urlopen(url):
+    data = urlopen(url)
+    for line in data:
         r = str(line)[7:-6]
-        break
+        data.close()
     if v != r:
         print("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
-        print("[\033[34mnotice\033[0m] To go to download page, run: \033[32mupdate\033[0m")
+        print("[\033[34mnotice\033[0m] To go to download page, run: \033[32mdownload\033[0m")
         cmd = "update"
 
 def find(directory, folder, program):
@@ -110,6 +111,7 @@ def namelist(person):
             student = "".join(info[5]) + "".join(info[4])
             if student:
                 students.append(student)
+    data.close()
     return students
 
 def generate(cmd, refresh = True):
@@ -118,13 +120,14 @@ def generate(cmd, refresh = True):
     folder = rubric[:-5] + "s"
     names = namelist(cmd[1])
     try:
-        urlopen("https://jpweb.ml/grader-rubrics/" + rubric)
+        data = urlopen("https://jpweb.ml/grader-rubrics/" + rubric)
     except:
         missing = "rubric"
         if not names:
             missing += " and grader"
         print("404 " + missing + " not found")
         return False
+    data.close()
     if not names:
         print("404 grader not found")
         return False
@@ -285,6 +288,12 @@ def command(cmd):
                 header()
             else:
                 print("submissions.zip not found")
+        elif cmd[0] == "assignment":
+            if len(cmd) == 1:
+                print("The syntax of the command is incorrect.")
+                return
+            web("https://csc210.ducta.net/Assignments/Assignment-" + cmd[1] + ".pdf")
+            header()
         else:
             os.system(" ".join(cmd))
         return True
@@ -292,11 +301,11 @@ def command(cmd):
         print(e)
         return False
 
+# TODO: List programs into a Dictionary datatype
 notepad_plus_plus = locate("Notepad++", "notepad++.exe")
 sublime_text = locate("Sublime Text", "sublime_text.exe")
 rubrics = None
 top = os.getcwd()
-program = top + "\\" + os.path.basename(__file__)[:-3] + ".exe"
 
 header("\n")
 cmd = ""
