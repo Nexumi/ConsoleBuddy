@@ -1,4 +1,4 @@
-v = "v0.4"
+v = "v0.4.1"
 
 import os
 import ssl
@@ -133,7 +133,7 @@ def namelist(person):
     data.close()
     return students
 
-def generate(cmd, refresh = True):
+def generate(cmd):
     global rubrics
     rubric = "Assignment-" + cmd[0] + "-Rubric.xlsx"
     folder = rubric[:-5] + "s"
@@ -144,11 +144,11 @@ def generate(cmd, refresh = True):
         missing = "rubric"
         if not names:
             missing += " and grader"
-        output = "404 " + missing + " not found"
+        output.append("404 " + missing + " not found")
         return False
     data.close()
     if not names:
-        output = "404 grader not found"
+        output.append("404 grader not found")
         return False
     os.mkdir(folder)
     os.chdir(folder)
@@ -158,8 +158,6 @@ def generate(cmd, refresh = True):
     os.remove(rubric)
     rubrics = os.getcwd()
     os.chdir("..")
-    if refresh:
-        header()
     return True
 
 def native(cmd):
@@ -300,7 +298,7 @@ def command(cmd):
                 os.remove("submissions.zip")
                 os.chdir("Assignment-" + cmd[1][0])
                 unzipper()
-                generate(cmd[1], False)
+                generate(cmd[1])
                 os.chdir("..")
             else:
                 output.append("submissions.zip not found")
