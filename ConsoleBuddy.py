@@ -1,7 +1,9 @@
-v = "v0.4.1"
+v = "v0.5.0"
 
 import os
 import ssl
+from sys import argv
+from time import sleep
 from zipfile import ZipFile
 from subprocess import Popen
 from shutil import copy2, rmtree
@@ -20,16 +22,42 @@ def reload():
     cmd = "exit"
 
 def update():
+    def dev(local, remote):
+        local = local.split(".")
+        remote = remote.split(".")
+        if int(local[0][1:]) < int(remote[0][1:]):
+            return True
+        elif int(local[0][1:]) > int(remote[0][1:]):
+            return False
+        elif int(local[1]) < int(remote[1]):
+            return True
+        elif int(local[1]) > int(remote[1]):
+            return False
+        else:
+            try:
+                if int(local[2][:len(remote[2])]) < int(remote[2]):
+                    return True
+            except:
+                pass
+        return False
+
     global cmd
     url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
     data = urlopen(url)
     for line in data:
         r = str(line)[7:-6]
         data.close()
-    if v != r:
+    if dev(v, r):
         output.append("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
-        output.append("[\033[34mnotice\033[0m] To go to download page, run: \033[32mdownload\033[0m")
+        output.append("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
         cmd = "update"
+
+def updating():
+    global cmd
+    os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
+    urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
+    os.startfile("ConsoleBuddyUpdater.exe")
+    cmd = "exit"
 
 def find(directory, folder, program):
     if os.path.exists(directory):
@@ -65,7 +93,8 @@ def header():
                 output[i] = output[i].decode("utf-8")
             else:
                 output[i] = str(output[i])
-        print("\n".join(output) + "\n")
+        if len(output) != 0:
+            print("\n".join(output) + "\n")
     output.clear()
 
 def build(name):
@@ -139,7 +168,7 @@ def generate(cmd):
     folder = rubric[:-5] + "s"
     names = namelist(cmd[1])
     try:
-        data = urlopen("https://jpweb.ml/grader-rubrics/" + rubric)
+        data = urlopen("https://web.jpkit.us/grader-rubrics/" + rubric)
     except:
         missing = "rubric"
         if not names:
@@ -152,7 +181,7 @@ def generate(cmd):
         return False
     os.mkdir(folder)
     os.chdir(folder)
-    urlretrieve("https://jpweb.ml/grader-rubrics/" + rubric, rubric)
+    urlretrieve("https://web.jpkit.us/grader-rubrics/" + rubric, rubric)
     for name in names:
         copy2(rubric, name + "-" + rubric)
     os.remove(rubric)
@@ -167,6 +196,24 @@ def native(cmd):
     if cmd.strip() != "":
         print()
     skip = True
+
+def opener(program, file, path = "."):
+    file = file.split("*")
+    listdir = os.listdir(path)
+    for idir in listdir:
+        marker = 0
+        finds = 0
+        for part in file:
+            mark = idir.find(part, marker)
+            if mark != -1:
+                marker = mark + len(part)
+                finds += 1
+            else:
+                break
+        if finds == len(file):
+            Popen([programs.get(program), idir])
+            output.append("Opening " + idir)
+
 
 def command(cmd):
     global output
@@ -216,22 +263,35 @@ def command(cmd):
                 native(cmd[0])
                 return
             native("java " + fuzzy(cmd[1]).replace(".class", ""))
+        elif cmd[0] == "javam":
+            if len(cmd) == 1:
+                native("javac")
+                return
+            native("javac -encoding ISO-8859-1 " + cmd[1])
         elif cmd[0] == "unzipper":
             unzipper()
         elif cmd[0] == "startwith":
+            def openPath(program, file):
+                if file.find("*") != -1:
+                    opener(program, file)
+                else:
+                    file = fuzzy(file)
+                    Popen([programs.get(program), file])
+                    output.append("Opening " + file)
+
             program = cmd[1].split()
             if programs.get("Notepad++") and program[0].lower() == "notepad++":
-                java = fuzzy(" ".join(program[1:]))
-                Popen([programs.get("Notepad++"), java])
-                output.append("Opening " + java)
+                file = " ".join(program[1:])
+                program = "Notepad++"
+                openPath(program, file)
             elif programs.get("Sublime Text") and " ".join(program[:2]).lower() == "sublime text":
-                java = fuzzy(" ".join(program[2:]))
-                Popen([programs.get("Sublime Text"), java])
-                output.append("Opening " + java)
+                file = " ".join(program[2:])
+                program = "Sublime Text"
+                openPath(program, file)
             elif programs.get("Sublime Text") and program[0].lower() == "sublime":
-                java = fuzzy(" ".join(program[1:]))
-                Popen([programs.get("Sublime Text"), java])
-                output.append("Opening " + java)
+                file = " ".join(program[1:])
+                program = "Sublime Text"
+                openPath(program, file)
             else:
                 output.append("Program not found or unsupported")
         elif cmd[0] == "eval":
@@ -280,6 +340,8 @@ def command(cmd):
             os.chdir(top)
         elif cmd[0] == "download":
             web("https://github.com/Nexumi/ConsoleBuddy/releases")
+        elif cmd[0] == "update":
+            updating()
         elif cmd[0] == "version":
             output.append("ConsoleBuddy " + v)
             update()
@@ -292,11 +354,11 @@ def command(cmd):
                 output.append("The syntax of the command is incorrect.")
                 return
             if "submissions.zip" in os.listdir():
-                assignment = "Assignment-" + cmd[0]
                 with ZipFile("submissions.zip", 'r') as zipObj:
                     zipObj.extractall(path = "Assignment-" + cmd[1][0])
                 os.remove("submissions.zip")
                 os.chdir("Assignment-" + cmd[1][0])
+                top = os.getcwd()
                 unzipper()
                 generate(cmd[1])
                 os.chdir("..")
@@ -306,7 +368,17 @@ def command(cmd):
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
                 return
-            web("https://csc210.ducta.net/Assignments/Assignment-" + cmd[1] + ".pdf")
+            web("https://csc210.ducta.net/Assignments/Assignment-" + cmd[1] + "/" + "Assignment-" + cmd[1] + ".pdf")
+        elif cmd[0] == "run":
+            if len(cmd) == 1:
+                output.append("The syntax of the command is incorrect.")
+                return
+            java = fuzzy(cmd[1])
+            native("javac -encoding ISO-8859-1 *.java")
+            native("java " + java.replace(".class", ""))
+            for idir in os.listdir():
+                if idir[-6:] == ".class":
+                    os.remove(idir)
         else:
             native(" ".join(cmd))
         return True
@@ -314,14 +386,6 @@ def command(cmd):
         output.append(e)
         return False
 
-if os.name != "nt":
-    ssl._create_default_https_context = ssl._create_unverified_context
-    try:
-        chdir(path.sep.join(argv[0].split(path.sep)[:-1]))
-    except:
-        pass
-
-# TODO: List programs into a Dictionary datatype
 if os.name == "nt":
     programs = {}
     programs["Notepad++"] = locate("Notepad++", "notepad++.exe")
@@ -333,6 +397,17 @@ if os.name == "nt":
     for popper in poppers:
         programs.pop(popper)
     del poppers
+else:
+    ssl._create_default_https_context = ssl._create_unverified_context
+    try:
+        os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
+    except:
+        pass
+
+if "ConsoleBuddyUpdater.exe" in os.listdir():
+    sleep(1)
+    os.remove("ConsoleBuddyUpdater.exe")
+
 rubrics = None
 top = os.getcwd()
 
