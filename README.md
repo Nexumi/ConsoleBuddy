@@ -10,6 +10,7 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - cd, del, start, copy, move, java - (Change) Added fuzzy search support
 - unzipper - (New) Unzips every zip file in the current directory
 - startwith - (New) Open file with specified program
+  - Supports using * to opening multiple files
   - Usage: startwith \<program\> \<file\>
 - programs - (New) Lists programs that were found by the script
   - Currently only finds Sublime Text and Notepad++
@@ -27,7 +28,9 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - setup - (New) Unzips and generates the rubrics for the current submissions
   - Usage: setup \<assignment\> \<grader’s name\>
 - assignment - (New) Opens up the assignment pdf
-	- Usage: assignment \<assignment\>
+  - Usage: assignment \<assignment\>
+- update - (New) updates ConsoleBuddy to the latest version
+- run - (New) compiles, runs, cleanup
 
 ## Support
 ✔️ Windows
