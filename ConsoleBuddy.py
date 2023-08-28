@@ -1,10 +1,11 @@
-v = "v0.5.0"
+v = "v0.5.1~RC1"
 
 import os
 import ssl
 from sys import argv
 from time import sleep
 from zipfile import ZipFile
+from canvasapi import Canvas
 from subprocess import Popen
 from shutil import copy2, rmtree
 from webbrowser import open as web
@@ -63,8 +64,8 @@ def find(directory, folder, program):
     if os.path.exists(directory):
         for file in os.listdir(directory):
             if file.lower() == folder.lower():
-                if program in os.listdir(directory + "\\" + file):
-                    return directory + "\\" + file + "\\" + program
+                if program in os.listdir(directory + os.path.sep + file):
+                    return directory + os.path.sep + file + os.path.sep + program
 
 def locate(folder, program):
     drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -164,9 +165,13 @@ def namelist(person):
 
 def generate(cmd):
     global rubrics
-    rubric = "Assignment-" + cmd[0] + "-Rubric.xlsx"
+    # rubric = "Assignment-" + cmd[0] + "-Rubric.xlsx"
+    rubric = "Assignment-" + cmd + "-Rubric.xlsx"
     folder = rubric[:-5] + "s"
-    names = namelist(cmd[1])
+    # names = namelist(cmd[1])
+    infile = open("../namelist.txt")
+    names = infile.read().splitlines()
+    infile.close()
     try:
         data = urlopen("https://web.jpkit.us/grader-rubrics/" + rubric)
     except:
@@ -214,6 +219,57 @@ def opener(program, file, path = "."):
             Popen([programs.get(program), idir])
             output.append("Opening " + idir)
 
+def choice(values):
+    x = -1
+    while x < 0 or x >= i - 1:
+        header()
+        i = 1
+        for value in values:
+            print(str(i) + ": " + str(value))
+            i += 1
+        try:
+            x = int(input("Number: ")) - 1
+        except:
+            pass
+    return values[x]
+
+def canvas():
+    try:
+        cfg = open("ConsoleBuddy.cfg", "x")
+        output.append("First time setup!")
+        header()
+        cfg.write(input("Canvas Token: ") + "\n")
+        cfg.write(input("Course ID: "))
+        cfg.close()
+    except:
+        pass
+    API_URL = "https://sfsu.instructure.com/"
+
+    # Canvas API key
+    file = open("ConsoleBuddy.cfg")
+    cfg = file.read().splitlines()
+    file.close()
+
+    API_KEY = cfg[0]
+    canvas = Canvas(API_URL, API_KEY)
+
+    course = canvas.get_course(int(cfg[1]))
+
+    assignments = course.get_assignments()
+
+    assignment = choice(assignments)
+
+    submissions = assignment.get_submissions()
+
+    print("Downloading Assignments...")
+    os.mkdir(str(assignment))
+    os.chdir(str(assignment))
+
+    for submission in submissions:
+        if len(submission.attachments):
+            attachment = submission.attachments[0]
+            urlretrieve(attachment.url, attachment.filename)
+            unzipper()
 
 def command(cmd):
     global output
@@ -303,10 +359,10 @@ def command(cmd):
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
                 return
-            cmd[1] = cmd[1].split(" ", 1)
-            if len(cmd[1]) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
+            # cmd[1] = cmd[1].split(" ", 1)
+            # if len(cmd[1]) == 1:
+            #     output.append("The syntax of the command is incorrect.")
+            #     return
             generate(cmd[1])
         elif cmd[0] == "set":
             if cmd[1].lower() == "rubrics":
@@ -349,15 +405,17 @@ def command(cmd):
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
                 return
-            cmd[1] = cmd[1].split(" ", 1)
-            if len(cmd[1]) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
+            # cmd[1] = cmd[1].split(" ", 1)
+            # if len(cmd[1]) == 1:
+            #     output.append("The syntax of the command is incorrect.")
+            #     return
             if "submissions.zip" in os.listdir():
                 with ZipFile("submissions.zip", 'r') as zipObj:
-                    zipObj.extractall(path = "Assignment-" + cmd[1][0])
+                    # zipObj.extractall(path = "Assignment-" + cmd[1][0])
+                    zipObj.extractall(path = "Assignment-" + cmd[1])
                 os.remove("submissions.zip")
-                os.chdir("Assignment-" + cmd[1][0])
+                # os.chdir("Assignment-" + cmd[1][0])
+                os.chdir("Assignment-" + cmd[1])
                 top = os.getcwd()
                 unzipper()
                 generate(cmd[1])
@@ -368,7 +426,7 @@ def command(cmd):
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
                 return
-            web("https://csc210.ducta.net/Assignments/Assignment-" + cmd[1] + "/" + "Assignment-" + cmd[1] + ".pdf")
+            web("https://csc215.ducta.net/Assignments/Assignment-" + cmd[1] + "/" + "Assignment-" + cmd[1] + ".pdf")
         elif cmd[0] == "run":
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
@@ -379,6 +437,8 @@ def command(cmd):
             for idir in os.listdir():
                 if idir[-6:] == ".class":
                     os.remove(idir)
+        elif cmd[0] == "canvas":
+            canvas()
         else:
             native(" ".join(cmd))
         return True
