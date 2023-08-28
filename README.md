@@ -29,8 +29,9 @@ All commands support fuzzy search (You do not have to spell out the full file na
   - Usage: setup \<assignment\> \<grader’s name\>
 - assignment - (New) Opens up the assignment pdf
   - Usage: assignment \<assignment\>
-- update - (New) updates ConsoleBuddy to the latest version
+- update - (New) Updates ConsoleBuddy to the latest version
 - run - (New) compiles, runs, cleanup
+- canvas - (New) Download student assignments
 
 ## Support
 ✔️ Windows
