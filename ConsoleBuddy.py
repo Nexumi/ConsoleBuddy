@@ -1,4 +1,4 @@
-v = "v0.5.1~RC1"
+v = "v0.5.1"
 
 import os
 import ssl
