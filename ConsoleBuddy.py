@@ -1,4 +1,4 @@
-v = "v0.5.1"
+v = "v0.5.2"
 
 import os
 import ssl
@@ -44,7 +44,10 @@ def update():
 
     global cmd
     url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
-    data = urlopen(url)
+    try:
+        data = urlopen(url)
+    except:
+        return
     for line in data:
         r = str(line)[7:-6]
         data.close()
@@ -55,8 +58,13 @@ def update():
 
 def updating():
     global cmd
+    global output
     os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
-    urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
+    try:
+        urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
+    except:
+        output.append("Something went wrong while trying to update. Maybe check your internet connection?")
+        return
     os.startfile("ConsoleBuddyUpdater.exe")
     cmd = "exit"
 
