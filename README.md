@@ -14,8 +14,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
   - Usage: startwith \<program\> \<file\>
 - programs - (New) Lists programs that were found by the script
   - Currently only finds Sublime Text and Notepad++
-- generate - (New) Generates rubrics for all students
-  - Usage: generate \<assignment\>
+- ~~generate - (New) Generates rubrics for all students~~
+  - ~~Usage: generate \<assignment\>~~
 - set - (New) Save the current location needed to be used by other commands
   - Usage: set \<rubrics/top\>
 - rubric - (New) Finds and opens rubric from the saved location
