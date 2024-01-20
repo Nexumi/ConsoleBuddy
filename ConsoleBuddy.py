@@ -1,4 +1,4 @@
-v = "v0.5.2"
+v = "v0.6.0"
 
 import os
 import ssl
@@ -242,6 +242,7 @@ def choice(values):
     return values[x]
 
 def canvas():
+    global top
     try:
         cfg = open("ConsoleBuddy.cfg", "x")
         output.append("First time setup!")
@@ -259,9 +260,14 @@ def canvas():
     file.close()
 
     API_KEY = cfg[0]
+
     canvas = Canvas(API_URL, API_KEY)
 
-    course = canvas.get_course(int(cfg[1]))
+    try:
+        course = canvas.get_course(int(cfg[1]))
+    except:
+        output.append("Something went wrong while trying to load assignments. Maybe check your internet connection?")
+        return
 
     assignments = course.get_assignments()
 
@@ -270,14 +276,46 @@ def canvas():
     submissions = assignment.get_submissions()
 
     print("Downloading Assignments...")
-    os.mkdir(str(assignment))
-    os.chdir(str(assignment))
 
+    folder = str(assignment)
+    folder = folder[:folder.index(" (")]
+    try:
+        os.mkdir(folder)
+    except:
+        i = 1
+        while True:
+            try:
+                os.mkdir(folder + " (" + str(i) + ")")
+                folder += " (" + str(i) + ")"
+                break
+            except:
+                i += 1
+    os.chdir(folder)
+
+    names = []
     for submission in submissions:
         if len(submission.attachments):
             attachment = submission.attachments[0]
             urlretrieve(attachment.url, attachment.filename)
-            unzipper()
+
+            student = str(course.get_user(submission.user_id))
+            student = student[:student.index(" (")].replace(" ", "")
+            names.append(student)
+    unzipper()
+
+    data = urlopen("https://web.jpkit.us/grader-rubrics/rubrics.txt")
+    rubrics = []
+    for info in data:
+        rubrics.append(info.decode("utf-8").replace("\n", ""))
+    rubric = choice(rubrics)
+
+    folder = rubric[:-5] + "s"
+    os.mkdir(folder)
+    os.chdir(folder)
+    urlretrieve("https://web.jpkit.us/grader-rubrics/" + rubric, rubric)
+    for name in names:
+        copy2(rubric, name + "-" + rubric)
+    os.remove(rubric)
 
 def command(cmd):
     global output
@@ -363,15 +401,15 @@ def command(cmd):
         elif cmd[0] == "programs":
             for program in programs.values():
                 output.append(program)
-        elif cmd[0] == "generate":
-            if len(cmd) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
-            # cmd[1] = cmd[1].split(" ", 1)
-            # if len(cmd[1]) == 1:
-            #     output.append("The syntax of the command is incorrect.")
-            #     return
-            generate(cmd[1])
+        # elif cmd[0] == "generate":
+        #     if len(cmd) == 1:
+        #         output.append("The syntax of the command is incorrect.")
+        #         return
+        #     # cmd[1] = cmd[1].split(" ", 1)
+        #     # if len(cmd[1]) == 1:
+        #     #     output.append("The syntax of the command is incorrect.")
+        #     #     return
+        #     generate(cmd[1])
         elif cmd[0] == "set":
             if cmd[1].lower() == "rubrics":
                 rubrics = os.getcwd()
