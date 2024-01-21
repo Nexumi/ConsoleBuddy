@@ -1,7 +1,5 @@
 v = "v0.7.0"
 
-# TODO: make folders have '' to better indicate if they are a folder or not
-
 import os
 import ssl
 from sys import argv
