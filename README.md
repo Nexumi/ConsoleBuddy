@@ -7,7 +7,8 @@ Always displays current directory and all files and folders in that directory
 
 All commands support fuzzy search (You do not have to spell out the full file name)
 
-- cd, del, rm, start, copy, move, java - (Change) Added fuzzy search support
+- cd, start, copy, move, java - (Change) Added fuzzy search support
+- del, rm - (Change) Added fuzzy search support and force recursive delete
 - unzipper - (New) Unzips every zip file in the current directory
 - startwith - (New) Open file with specified program
   - Supports using * to opening multiple files
