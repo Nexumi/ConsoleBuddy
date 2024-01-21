@@ -1,4 +1,6 @@
-v = "v0.6.0"
+v = "v0.7.0"
+
+# TODO: make folders have '' to better indicate if they are a folder or not
 
 import os
 import ssl
@@ -95,7 +97,13 @@ def header():
     global output
     clear()
     print(("\033[4mCurrent Directory: " + os.getcwd().split("\\")[-1] + "\033[0m").center(os.get_terminal_size().columns))
-    print("  |  ".join(os.listdir()) + "\n")
+    dirs = os.listdir()
+    for i in range(len(dirs)):
+        if os.path.isfile(dirs[i]):
+            dirs[i] = green + dirs[i] + reset
+        else:
+            dirs[i] = blue + dirs[i] + reset
+    print("  |  ".join(dirs) + "\n")
     if cmd.strip() != "" and output:
         for i in range(len(output)):
             if type(output[i]) == type(b""):
@@ -131,7 +139,11 @@ def fuzzy(file, path = "."):
         return dirs[0]
     else:
         for i in range(ld):
-            output.append(str(i + 1) + ") " + dirs[i])
+            if os.path.isfile(dirs[i]):
+                color = green
+            else:
+                color = blue
+            output.append(str(i + 1) + ") " + color + dirs[i] + reset)
         header()
         try:
             opt = int(input("Option> ")) - 1
@@ -140,18 +152,13 @@ def fuzzy(file, path = "."):
             return file
 
 def unzipper():
-    zips = os.listdir()
-    i = 0
-    while i < len(zips):
-        if zips[i][-4:].lower() != ".zip":
-            zips.pop(i)
-        else:
-            i += 1
-    for izip in zips:
-        os.mkdir(izip[:-4])
-        with ZipFile(izip, 'r') as zipObj:
-          zipObj.extractall(path=izip[:-4])
-        os.remove(izip)
+    dirs = os.listdir()
+    for idir in dirs:
+        if idir[-4:].lower() == ".zip":
+            os.mkdir(idir[:-4])
+            with ZipFile(idir, 'r') as zipObj:
+              zipObj.extractall(path=idir[:-4])
+            os.remove(idir)
 
 def namelist(person):
     # http://gradersections.ducta.net/
@@ -236,7 +243,10 @@ def choice(values):
             print(str(i) + ": " + str(value))
             i += 1
         try:
-            x = int(input("Number: ")) - 1
+            n = input("Number: ")
+            if n == "cancel":
+                return
+            x = int(n) - 1
         except:
             pass
     return values[x]
@@ -260,11 +270,12 @@ def canvas():
     file.close()
 
     API_KEY = cfg[0]
+    COURSE_ID = cfg[1]
 
     canvas = Canvas(API_URL, API_KEY)
 
     try:
-        course = canvas.get_course(int(cfg[1]))
+        course = canvas.get_course(COURSE_ID)
     except:
         output.append("Something went wrong while trying to load assignments. Maybe check your internet connection?")
         return
@@ -272,9 +283,12 @@ def canvas():
     assignments = course.get_assignments()
 
     assignment = choice(assignments)
+    if assignment == None:
+        return
 
     submissions = assignment.get_submissions()
 
+    print()
     print("Downloading Assignments...")
 
     folder = str(assignment)
@@ -295,12 +309,13 @@ def canvas():
     names = []
     for submission in submissions:
         if len(submission.attachments):
+            student = str(course.get_user(submission.user_id))
+            student = student[:student.index(" (")]
+            print(student)
+            names.append(student.replace(" ", ""))
+
             attachment = submission.attachments[0]
             urlretrieve(attachment.url, attachment.filename)
-
-            student = str(course.get_user(submission.user_id))
-            student = student[:student.index(" (")].replace(" ", "")
-            names.append(student)
     unzipper()
 
     data = urlopen("https://web.jpkit.us/grader-rubrics/rubrics.txt")
@@ -308,14 +323,22 @@ def canvas():
     for info in data:
         rubrics.append(info.decode("utf-8").replace("\n", ""))
     rubric = choice(rubrics)
+    if rubric == None:
+        return
+
+    print()
+    print("Generating Rubrics...")
 
     folder = rubric[:-5] + "s"
     os.mkdir(folder)
     os.chdir(folder)
     urlretrieve("https://web.jpkit.us/grader-rubrics/" + rubric, rubric)
     for name in names:
+        print(name + "-" + rubric)
         copy2(rubric, name + "-" + rubric)
     os.remove(rubric)
+
+    os.chdir("..")
 
 def command(cmd):
     global output
@@ -329,15 +352,15 @@ def command(cmd):
                 native(cmd[0])
                 return
             os.chdir(fuzzy(cmd[1]))
-        elif cmd[0] == "del":
+        elif cmd[0] == "del" or cmd[0] == "rm":
             if len(cmd) == 1:
                 native(cmd[0])
                 return
             path = fuzzy(cmd[1])
             if path == ".":
                 header("\n")
-                output.append("WARNING: del . is disabled as it deletes everything in the current directory.")
-                output.append("If you want to delete everything, delete the folder: cd .. > del folder_name")
+                output.append("WARNING: " + cmd[0] + " . is disabled as it deletes everything in the current directory.")
+                output.append("If you want to delete everything, delete the folder: cd .. > " + cmd[0] + " folder_name")
                 return
             if os.path.isfile(path):
                 os.remove(path)
@@ -447,27 +470,27 @@ def command(cmd):
         elif cmd[0] == "version":
             output.append("ConsoleBuddy " + v)
             update()
-        elif cmd[0] == "setup":
-            if len(cmd) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
-            # cmd[1] = cmd[1].split(" ", 1)
-            # if len(cmd[1]) == 1:
-            #     output.append("The syntax of the command is incorrect.")
-            #     return
-            if "submissions.zip" in os.listdir():
-                with ZipFile("submissions.zip", 'r') as zipObj:
-                    # zipObj.extractall(path = "Assignment-" + cmd[1][0])
-                    zipObj.extractall(path = "Assignment-" + cmd[1])
-                os.remove("submissions.zip")
-                # os.chdir("Assignment-" + cmd[1][0])
-                os.chdir("Assignment-" + cmd[1])
-                top = os.getcwd()
-                unzipper()
-                generate(cmd[1])
-                os.chdir("..")
-            else:
-                output.append("submissions.zip not found")
+        # elif cmd[0] == "setup":
+        #     if len(cmd) == 1:
+        #         output.append("The syntax of the command is incorrect.")
+        #         return
+        #     # cmd[1] = cmd[1].split(" ", 1)
+        #     # if len(cmd[1]) == 1:
+        #     #     output.append("The syntax of the command is incorrect.")
+        #     #     return
+        #     if "submissions.zip" in os.listdir():
+        #         with ZipFile("submissions.zip", 'r') as zipObj:
+        #             # zipObj.extractall(path = "Assignment-" + cmd[1][0])
+        #             zipObj.extractall(path = "Assignment-" + cmd[1])
+        #         os.remove("submissions.zip")
+        #         # os.chdir("Assignment-" + cmd[1][0])
+        #         os.chdir("Assignment-" + cmd[1])
+        #         top = os.getcwd()
+        #         unzipper()
+        #         generate(cmd[1])
+        #         os.chdir("..")
+        #     else:
+        #         output.append("submissions.zip not found")
         elif cmd[0] == "assignment":
             if len(cmd) == 1:
                 output.append("The syntax of the command is incorrect.")
@@ -513,6 +536,10 @@ else:
 if "ConsoleBuddyUpdater.exe" in os.listdir():
     sleep(1)
     os.remove("ConsoleBuddyUpdater.exe")
+
+green = "\033[32m"
+blue = "\033[34m"
+reset = "\033[0m"
 
 rubrics = None
 top = os.getcwd()
