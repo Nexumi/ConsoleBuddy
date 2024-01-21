@@ -1,4 +1,4 @@
-v = "v0.7.0"
+v = "v0.8.0"
 
 import os
 import ssl
@@ -6,8 +6,8 @@ from sys import argv
 from time import sleep
 from zipfile import ZipFile
 from canvasapi import Canvas
-from subprocess import Popen
 from shutil import copy2, rmtree
+from subprocess import Popen, call
 from webbrowser import open as web
 from urllib.request import urlopen, urlretrieve
 
@@ -17,10 +17,37 @@ def clear():
     else:
         os.system("clear")
 
+def open_file(filename):
+    if os.name == "nt":
+        os.startfile(filename)
+    else:
+        call(["open", filename])
+
 def reload():
     global cmd
-    os.startfile(__file__)
+    file = argv[0].split(os.path.sep)[-1]
+    if os.name == "nt":
+        open_file(file)
+    else:
+        try:
+            if file[-3:] == ".py":
+                call(["mate-terminal", "--", "python", file])
+            else:
+                call(["mate-terminal", "--", "./" + file])
+        except:
+            call(["python", argv[0]])
     cmd = "exit"
+
+def pyinstaller():
+    parse = argv[0].split(os.path.sep)
+    path = os.path.sep.join(parse[:-1])
+    file = parse[-1]
+    os.system("pyinstaller --onefile " + file)
+    out = os.listdir("dist")[0]
+    os.replace("dist" + os.path.sep + out, out)
+    os.remove(file[:file.rindex(".")] + ".spec")
+    rmtree("build")
+    rmtree("dist")
 
 def update():
     def dev(local, remote):
@@ -65,7 +92,7 @@ def updating():
     except:
         output.append("Something went wrong while trying to update. Maybe check your internet connection?")
         return
-    os.startfile("ConsoleBuddyUpdater.exe")
+    open_file("ConsoleBuddyUpdater.exe")
     cmd = "exit"
 
 def find(directory, folder, program):
@@ -94,7 +121,7 @@ def header():
         return
     global output
     clear()
-    print(("\033[4mCurrent Directory: " + os.getcwd().split("\\")[-1] + "\033[0m").center(os.get_terminal_size().columns))
+    print(("\033[4mCurrent Directory: " + os.getcwd().split(os.path.sep)[-1] + "\033[0m").center(os.get_terminal_size().columns))
     dirs = os.listdir()
     for i in range(len(dirs)):
         if os.path.isfile(dirs[i]):
@@ -182,7 +209,7 @@ def generate(cmd):
     rubric = "Assignment-" + cmd + "-Rubric.xlsx"
     folder = rubric[:-5] + "s"
     # names = namelist(cmd[1])
-    infile = open("../namelist.txt")
+    infile = open(".." + os.path.sep + "namelist.txt")
     names = infile.read().splitlines()
     infile.close()
     try:
@@ -343,6 +370,7 @@ def command(cmd):
     global rubrics
     global top
     try:
+        original = cmd
         cmd = cmd.split(" ", 1)
         cmd[0] = cmd[0].lower()
         if cmd[0] == "cd":
@@ -368,7 +396,7 @@ def command(cmd):
             if len(cmd) == 1:
                 native(cmd[0])
                 return
-            os.startfile(fuzzy(cmd[1]))
+            open_file(fuzzy(cmd[1]))
         elif cmd[0] == "copy":
             if len(cmd) == 1:
                 native(cmd[0])
@@ -393,7 +421,7 @@ def command(cmd):
             native("javac -encoding ISO-8859-1 " + cmd[1])
         elif cmd[0] == "unzipper":
             unzipper()
-        elif cmd[0] == "startwith":
+        elif os.name == "nt" and cmd[0] == "startwith":
             def openPath(program, file):
                 if file.find("*") != -1:
                     opener(program, file)
@@ -419,7 +447,7 @@ def command(cmd):
                 output.append("Program not found or unsupported")
         elif cmd[0] == "eval":
             eval(cmd[1])
-        elif cmd[0] == "programs":
+        elif os.name == "nt" and cmd[0] == "programs":
             for program in programs.values():
                 output.append(program)
         # elif cmd[0] == "generate":
@@ -446,7 +474,7 @@ def command(cmd):
                     output.append("rubrics = " + rubrics)
                 else:
                     rubric = fuzzy(cmd[1], rubrics)
-                    os.startfile(rubrics + "\\" + rubric)
+                    open_file(rubrics + "\\" + rubric)
                     output.append("Opening " + rubric)
         elif cmd[0] == "pretty":
             for idir in os.listdir():
@@ -464,7 +492,10 @@ def command(cmd):
         elif cmd[0] == "download":
             web("https://github.com/Nexumi/ConsoleBuddy/releases")
         elif cmd[0] == "update":
-            updating()
+            if os.name == "nt":
+                updating()
+            else:
+                output.append("Command update disabled. Will be enabled in future update.")
         elif cmd[0] == "version":
             output.append("ConsoleBuddy " + v)
             update()
@@ -507,7 +538,7 @@ def command(cmd):
         elif cmd[0] == "canvas":
             canvas()
         else:
-            native(" ".join(cmd))
+            native(original)
         return True
     except Exception as e:
         output.append(e)
