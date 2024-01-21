@@ -41,6 +41,12 @@ All commands support fuzzy search (You do not have to spell out the full file na
 
 ✔️ Linux
 
+## Download
+| System | Program |
+| --- | --- |
+| Windows (x86_64) | [ConsoleBuddy.exe](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy.exe) |
+| Linux (x86_64) | [ConsoleBuddy](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy) | Run `chmod +x ConsoleBuddy`<br>Run `./ConsoleBuddy` |
+
 ## Direct Run
 - Install [Python](https://www.python.org/)
 - Open terminal in folder containing the program
