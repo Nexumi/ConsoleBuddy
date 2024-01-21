@@ -37,9 +37,9 @@ All commands support fuzzy search (You do not have to spell out the full file na
 ## Support
 ✔️ Windows
 
-❌ MacOS (Untested Possible Partial Direct Run Support)
+➖ MacOS (Untested Direct Run Support)
 
-➖ Linux (Partial Direct Run Support)
+✔️ Linux
 
 ## Direct Run
 - Install [Python](https://www.python.org/)
