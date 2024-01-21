@@ -1,4 +1,4 @@
-v = "v0.8.0"
+v = "v0.8.1"
 
 import os
 import ssl
@@ -6,8 +6,8 @@ from sys import argv
 from time import sleep
 from zipfile import ZipFile
 from canvasapi import Canvas
+from subprocess import Popen
 from shutil import copy2, rmtree
-from subprocess import Popen, call
 from webbrowser import open as web
 from urllib.request import urlopen, urlretrieve
 
@@ -21,27 +21,27 @@ def open_file(filename):
     if os.name == "nt":
         os.startfile(filename)
     else:
-        call(["open", filename])
+        os.system("open " + filename)
 
 def reload():
     global cmd
     file = argv[0].split(os.path.sep)[-1]
     if os.name == "nt":
-        open_file(file)
+        os.startfile(file)
     else:
         try:
             if file[-3:] == ".py":
-                call(["mate-terminal", "--", "python", file])
+                os.system("x-terminal-emulator -e python " + file)
             else:
-                call(["mate-terminal", "--", "./" + file])
+                os.system("x-terminal-emulator -e ./" + file)
         except:
-            call(["python", argv[0]])
+            if file[-3:] == ".py":
+                os.system("python " + file)
+            else:
+                os.system("./" + file)
     cmd = "exit"
 
-def pyinstaller():
-    parse = argv[0].split(os.path.sep)
-    path = os.path.sep.join(parse[:-1])
-    file = parse[-1]
+def pyinstaller(file = argv[0].split(os.path.sep)[-1]):
     os.system("pyinstaller --onefile " + file)
     out = os.listdir("dist")[0]
     os.replace("dist" + os.path.sep + out, out)
@@ -88,11 +88,21 @@ def updating():
     global output
     os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
     try:
-        urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
+        if os.name == "nt":
+            urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
+        else:
+            urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater", "ConsoleBuddyUpdater")
     except:
         output.append("Something went wrong while trying to update. Maybe check your internet connection?")
         return
-    open_file("ConsoleBuddyUpdater.exe")
+    if os.name == "nt":
+        os.startfile("ConsoleBuddyUpdater.exe")
+    else:
+        os.system("chmod +x ConsoleBuddyUpdater")
+        try:
+            os.system("x-terminal-emulator -e ./ConsoleBuddyUpdater")
+        except:
+            os.system("./" + file)
     cmd = "exit"
 
 def find(directory, folder, program):
@@ -492,10 +502,7 @@ def command(cmd):
         elif cmd[0] == "download":
             web("https://github.com/Nexumi/ConsoleBuddy/releases")
         elif cmd[0] == "update":
-            if os.name == "nt":
-                updating()
-            else:
-                output.append("Command update disabled. Will be enabled in future update.")
+            updating()
         elif cmd[0] == "version":
             output.append("ConsoleBuddy " + v)
             update()
@@ -565,6 +572,9 @@ else:
 if "ConsoleBuddyUpdater.exe" in os.listdir():
     sleep(1)
     os.remove("ConsoleBuddyUpdater.exe")
+elif "ConsoleBuddyUpdater" in os.listdir():
+    sleep(1)
+    os.remove("ConsoleBuddyUpdater")
 
 green = "\033[32m"
 blue = "\033[34m"
