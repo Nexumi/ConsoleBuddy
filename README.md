@@ -32,7 +32,7 @@ All commands support fuzzy search (You do not have to spell out the full file na
   - Usage: assignment \<assignment\>
 - update - (New) Updates ConsoleBuddy to the latest version
 - run - (New) compiles, runs, cleanup
-- canvas - (New) Download student assignments
+- canvas - (New) Download student assignments with rubrics
 
 ## Support
 ✔️ Windows
