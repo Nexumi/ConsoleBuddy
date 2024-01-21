@@ -25,8 +25,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - top - (New) Jumps back to the saved location
 - download - (New) Opens the download page for ConsoleBuddy
 - version - (New) Shows the current version of ConsoleBuddy that you are using and also checks for updates
-- setup - (New) Unzips and generates the rubrics for the current submissions
-  - Usage: setup \<assignment\>
+- ~~setup - (New) Unzips and generates the rubrics for the current submissions~~
+  - ~~Usage: setup \<assignment\>~~
 - assignment - (New) Opens up the assignment pdf
   - Usage: assignment \<assignment\>
 - update - (New) Updates ConsoleBuddy to the latest version
@@ -42,7 +42,9 @@ All commands support fuzzy search (You do not have to spell out the full file na
 
 ## Direct Run
 - Install [Python](https://www.python.org/)
-- Run `py` file
+- Open terminal in folder containing the program
+- Run `pip install canvasapi` (Only needs to be run once)
+- Run `python studentAssignmentDownloader.py`
 - Profit
 
 ## Self Compilation
