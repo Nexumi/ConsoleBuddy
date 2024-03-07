@@ -1,24 +1,24 @@
-v = "v0.8.1"
+v = "v0.8.2"
 
 import os
 import ssl
-from sys import argv
 from time import sleep
 from zipfile import ZipFile
 from canvasapi import Canvas
 from subprocess import Popen
+from sys import argv, platform
 from shutil import copy2, rmtree
 from webbrowser import open as web
 from urllib.request import urlopen, urlretrieve
 
 def clear():
-    if os.name == "nt":
+    if platform.startswith("win32"):
         os.system("cls")
     else:
         os.system("clear")
 
 def open_file(filename):
-    if os.name == "nt":
+    if platform.startswith("win32"):
         os.startfile(filename)
     else:
         os.system("open " + filename)
@@ -26,7 +26,7 @@ def open_file(filename):
 def reload():
     global cmd
     file = argv[0].split(os.path.sep)[-1]
-    if os.name == "nt":
+    if platform.startswith("win32"):
         os.startfile(file)
     else:
         try:
@@ -88,19 +88,19 @@ def updating():
     global output
     os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
     try:
-        if os.name == "nt":
+        if platform.startswith("win32"):
             urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater.exe", "ConsoleBuddyUpdater.exe")
         else:
-            urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdater", "ConsoleBuddyUpdater")
+            urlretrieve("https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddyUpdaterLinux", "ConsoleBuddyUpdaterLinux")
     except:
         output.append("Something went wrong while trying to update. Maybe check your internet connection?")
         return
-    if os.name == "nt":
+    if platform.startswith("win32"):
         os.startfile("ConsoleBuddyUpdater.exe")
     else:
-        os.system("chmod +x ConsoleBuddyUpdater")
+        os.system("chmod +x ConsoleBuddyUpdaterLinux")
         try:
-            os.system("x-terminal-emulator -e ./ConsoleBuddyUpdater")
+            os.system("x-terminal-emulator -e ./ConsoleBuddyUpdaterLinux")
         except:
             os.system("./" + file)
     cmd = "exit"
@@ -269,13 +269,13 @@ def opener(program, file, path = "."):
             Popen([programs.get(program), idir])
             output.append("Opening " + idir)
 
-def choice(values):
+def choice(values, name = lambda n : str(n)):
     x = -1
     while x < 0 or x >= i - 1:
         header()
         i = 1
         for value in values:
-            print(str(i) + ": " + str(value))
+            print(str(i) + ": " + name(value))
             i += 1
         try:
             n = input("Number: ")
@@ -287,25 +287,28 @@ def choice(values):
     return values[x]
 
 def canvas():
+    global rubrics
     global top
+
     try:
         cfg = open("ConsoleBuddy.cfg", "x")
         output.append("First time setup!")
         header()
+        cfg.write(input("Institution: ") + "\n")
         cfg.write(input("Canvas Token: ") + "\n")
         cfg.write(input("Course ID: "))
         cfg.close()
     except:
         pass
-    API_URL = "https://sfsu.instructure.com/"
 
     # Canvas API key
     file = open("ConsoleBuddy.cfg")
     cfg = file.read().splitlines()
     file.close()
 
-    API_KEY = cfg[0]
-    COURSE_ID = cfg[1]
+    API_URL = "https://" + cfg[0] + ".instructure.com/"
+    API_KEY = cfg[1]
+    COURSE_ID = cfg[2]
 
     canvas = Canvas(API_URL, API_KEY)
 
@@ -315,12 +318,16 @@ def canvas():
         output.append("Something went wrong while trying to load assignments. Maybe check your internet connection?")
         return
 
-    assignments = course.get_assignments()
-
-    assignment = choice(assignments)
+    assignments = list(course.get_assignments())
+    i = 0
+    while i < len(assignments):
+        if assignments[i].submission_types[0] != "online_upload":
+            assignments.pop(i)
+        else:
+            i += 1
+    assignment = choice(assignments, lambda n : n.name)
     if assignment == None:
         return
-
     submissions = assignment.get_submissions()
 
     print()
@@ -340,24 +347,29 @@ def canvas():
             except:
                 i += 1
     os.chdir(folder)
+    top = os.getcwd()
 
     names = []
     for submission in submissions:
         if len(submission.attachments):
             student = str(course.get_user(submission.user_id))
             student = student[:student.index(" (")]
+
+            if student == "Test Student":
+                continue
+
             print(student)
-            names.append(student.replace(" ", ""))
+            names.append(student.replace(" ", "").replace("-", ""))
 
             attachment = submission.attachments[0]
             urlretrieve(attachment.url, attachment.filename)
     unzipper()
 
     data = urlopen("https://web.jpkit.us/grader-rubrics/rubrics.txt")
-    rubrics = []
+    available = []
     for info in data:
-        rubrics.append(info.decode("utf-8").replace("\n", ""))
-    rubric = choice(rubrics)
+        available.append(info.decode("utf-8").replace("\n", ""))
+    rubric = choice(available)
     if rubric == None:
         return
 
@@ -373,6 +385,7 @@ def canvas():
         copy2(rubric, name + "-" + rubric)
     os.remove(rubric)
 
+    rubrics = os.getcwd()
     os.chdir("..")
 
 def command(cmd):
@@ -431,7 +444,7 @@ def command(cmd):
             native("javac -encoding ISO-8859-1 " + cmd[1])
         elif cmd[0] == "unzipper":
             unzipper()
-        elif os.name == "nt" and cmd[0] == "startwith":
+        elif platform.startswith("win32") and cmd[0] == "startwith":
             def openPath(program, file):
                 if file.find("*") != -1:
                     opener(program, file)
@@ -457,7 +470,7 @@ def command(cmd):
                 output.append("Program not found or unsupported")
         elif cmd[0] == "eval":
             eval(cmd[1])
-        elif os.name == "nt" and cmd[0] == "programs":
+        elif platform.startswith("win32") and cmd[0] == "programs":
             for program in programs.values():
                 output.append(program)
         # elif cmd[0] == "generate":
@@ -551,7 +564,7 @@ def command(cmd):
         output.append(e)
         return False
 
-if os.name == "nt":
+if platform.startswith("win32"):
     programs = {}
     programs["Notepad++"] = locate("Notepad++", "notepad++.exe")
     programs["Sublime Text"] = locate("Sublime Text", "sublime_text.exe")
@@ -562,7 +575,7 @@ if os.name == "nt":
     for popper in poppers:
         programs.pop(popper)
     del poppers
-else:
+elif platform.startswith("darwin"):
     ssl._create_default_https_context = ssl._create_unverified_context
     try:
         os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
