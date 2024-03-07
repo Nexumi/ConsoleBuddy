@@ -585,9 +585,12 @@ elif platform.startswith("darwin"):
 if "ConsoleBuddyUpdater.exe" in os.listdir():
     sleep(1)
     os.remove("ConsoleBuddyUpdater.exe")
-elif "ConsoleBuddyUpdater" in os.listdir():
+if "ConsoleBuddyUpdater" in os.listdir():
     sleep(1)
     os.remove("ConsoleBuddyUpdater")
+if "ConsoleBuddyUpdaterLinux" in os.listdir():
+    sleep(1)
+    os.remove("ConsoleBuddyUpdaterLinux")
 
 green = "\033[32m"
 blue = "\033[34m"
