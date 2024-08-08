@@ -1,6 +1,6 @@
 # ConsoleBuddy
 
-> A better way to use Windows Command Prompt.
+> A better way to use the terminal.
 
 ## Features
 Always displays current directory and all files and folders in that directory
