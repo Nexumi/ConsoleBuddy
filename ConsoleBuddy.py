@@ -1,4 +1,4 @@
-v = "v0.8.2"
+v = "v0.8.3"
 
 import os
 import ssl
@@ -25,9 +25,8 @@ def open_file(filename):
 
 def reload():
     global cmd
-    file = argv[0].split(os.path.sep)[-1]
     if platform.startswith("win32"):
-        os.startfile(file)
+        os.startfile(argv[0])
     else:
         try:
             if file[-3:] == ".py":
@@ -159,13 +158,15 @@ def build(name):
             n += letter
     output.append(n)
 
-def fuzzy(file, path = "."):
+def fuzzy(file, path = ".", dirOnly = False):
     dirs = []
     listdir = os.listdir(path)
     for idir in listdir:
         if idir.lower() == file.lower():
             return idir
         if idir.lower().find(file.lower()) != -1:
+            if dirOnly and os.path.isfile(idir):
+                continue
             dirs.append(idir)
     ld = len(dirs)
     if ld == 0:
@@ -400,10 +401,10 @@ def command(cmd):
             if len(cmd) == 1:
                 native(cmd[0])
                 return
-            os.chdir(fuzzy(cmd[1]))
-        elif cmd[0] == "del" or cmd[0] == "rm":
+            os.chdir(fuzzy(cmd[1], dirOnly = True))
+        elif cmd[0] in ["del", "rm"]:
             if len(cmd) == 1:
-                native(cmd[0])
+                output.append("The syntax of the command is incorrect.")
                 return
             path = fuzzy(cmd[1])
             if path == ".":
@@ -444,7 +445,7 @@ def command(cmd):
             native("javac -encoding ISO-8859-1 " + cmd[1])
         elif cmd[0] == "unzipper":
             unzipper()
-        elif platform.startswith("win32") and cmd[0] == "startwith":
+        elif platform.startswith("win32") and cmd[0] in ["startwith", "sw"]:
             def openPath(program, file):
                 if file.find("*") != -1:
                     opener(program, file)
@@ -454,7 +455,7 @@ def command(cmd):
                     output.append("Opening " + file)
 
             program = cmd[1].split()
-            if programs.get("Notepad++") and program[0].lower() == "notepad++":
+            if programs.get("Notepad++") and program[0].lower() in ["notepad++", "notepad", "n"]:
                 file = " ".join(program[1:])
                 program = "Notepad++"
                 openPath(program, file)
@@ -462,7 +463,7 @@ def command(cmd):
                 file = " ".join(program[2:])
                 program = "Sublime Text"
                 openPath(program, file)
-            elif programs.get("Sublime Text") and program[0].lower() == "sublime":
+            elif programs.get("Sublime Text") and program[0].lower() in ["sublime", "s"]:
                 file = " ".join(program[1:])
                 program = "Sublime Text"
                 openPath(program, file)
@@ -551,7 +552,11 @@ def command(cmd):
                 return
             java = fuzzy(cmd[1])
             native("javac -encoding ISO-8859-1 *.java")
-            native("java " + java.replace(".class", ""))
+            native("java " + java.replace(".java", ""))
+            for idir in os.listdir():
+                if idir[-6:] == ".class":
+                    os.remove(idir)
+        elif cmd[0] == "clean":
             for idir in os.listdir():
                 if idir[-6:] == ".class":
                     os.remove(idir)
@@ -575,12 +580,11 @@ if platform.startswith("win32"):
     for popper in poppers:
         programs.pop(popper)
     del poppers
-elif platform.startswith("darwin"):
-    ssl._create_default_https_context = ssl._create_unverified_context
-    try:
-        os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
-    except:
-        pass
+ssl._create_default_https_context = ssl._create_unverified_context
+try:
+    os.chdir(os.path.sep.join(argv[0].split(os.path.sep)[:-1]))
+except:
+    pass
 
 if "ConsoleBuddyUpdater.exe" in os.listdir():
     sleep(1)
