@@ -1,4 +1,4 @@
-v = "v0.8.3"
+v = "v0.8.4~dev1"
 
 import os
 import ssl
@@ -6,10 +6,15 @@ from time import sleep
 from zipfile import ZipFile
 from canvasapi import Canvas
 from subprocess import Popen
+from threading import Thread
+from json import dumps, loads
 from sys import argv, platform
 from shutil import copy2, rmtree
 from webbrowser import open as web
 from urllib.request import urlopen, urlretrieve
+
+class InvalidConfigException(Exception):
+    pass
 
 def clear():
     if platform.startswith("win32"):
@@ -270,6 +275,22 @@ def opener(program, file, path = "."):
             Popen([programs.get(program), idir])
             output.append("Opening " + idir)
 
+def downloader(url, filename):
+    urlretrieve(url, filename)
+    if filename.endswith(".zip"):
+        os.mkdir(filename[:-4])
+        with ZipFile(filename, 'r') as zipObj:
+            zipObj.extractall(path=filename[:-4])
+        os.remove(filename)
+
+def urlfix(url):
+    if url:
+        if not url.startswith("https://") and not url.startswith("http://"):
+            url = f"https://{url}"
+        if not url.endswith("/"):
+            url += "/"
+    return url
+
 def choice(values, name = lambda n : str(n)):
     x = -1
     while x < 0 or x >= i - 1:
@@ -291,30 +312,33 @@ def canvas():
     global rubrics
     global top
 
+    # Canvas API
     try:
-        cfg = open("ConsoleBuddy.cfg", "x")
-        output.append("First time setup!")
-        header()
-        cfg.write(input("Institution: ") + "\n")
-        cfg.write(input("Canvas Token: ") + "\n")
-        cfg.write(input("Course ID: "))
-        cfg.close()
+        with open("ConsoleBuddy.cfg", "x") as cfg:
+            output.append("First time setup!")
+            header()
+            config = {
+                "API_URL": "https://" + (institution := input("Institution: ")) + ".instructure.com/",
+                "API_KEY": input("Canvas Token: "),
+                "COURSE_ID": input("Course ID: "),
+                "RUBRIC_SOURCE": urlfix(input("(Optional) Rubric Source: "))
+            }
+            cfg.write(dumps(config))
     except:
-        pass
+        with open("ConsoleBuddy.cfg") as cfg:
+            try:
+                config = loads(cfg.read())
+                if not config.get("API_URL") or not config.get("API_KEY") or not config.get("COURSE_ID"):
+                    raise
+            except:
+                raise InvalidConfigException("Invalid config file detected. Please fix or delete the config file and try again.")
 
-    # Canvas API key
-    file = open("ConsoleBuddy.cfg")
-    cfg = file.read().splitlines()
-    file.close()
+    # Initialize a new Canvas object
+    canvas = Canvas(config["API_URL"], config["API_KEY"])
 
-    API_URL = "https://" + cfg[0] + ".instructure.com/"
-    API_KEY = cfg[1]
-    COURSE_ID = cfg[2]
-
-    canvas = Canvas(API_URL, API_KEY)
-
+    # Get Assignment
     try:
-        course = canvas.get_course(COURSE_ID)
+        course = canvas.get_course(config["COURSE_ID"])
     except:
         output.append("Something went wrong while trying to load assignments. Maybe check your internet connection?")
         return
@@ -327,67 +351,86 @@ def canvas():
         else:
             i += 1
     assignment = choice(assignments, lambda n : n.name)
-    if assignment == None:
-        return
-    submissions = assignment.get_submissions()
+    if assignment:
+        submissions = assignment.get_submissions()
 
-    print()
-    print("Downloading Assignments...")
+        print()
+        print("Downloading Assignments...")
 
-    folder = str(assignment)
-    folder = folder[:folder.index(" (")]
-    try:
-        os.mkdir(folder)
-    except:
-        i = 1
-        while True:
-            try:
-                os.mkdir(folder + " (" + str(i) + ")")
-                folder += " (" + str(i) + ")"
-                break
-            except:
-                i += 1
-    os.chdir(folder)
-    top = os.getcwd()
+        # Generate Folder
+        folder = str(assignment)
+        folder = folder[:folder.index(" (")]
+        try:
+            os.mkdir(folder)
+        except:
+            i = 1
+            while True:
+                try:
+                    os.mkdir(folder + " (" + str(i) + ")")
+                    folder += " (" + str(i) + ")"
+                    break
+                except:
+                    i += 1
+        os.chdir(folder)
+        top = os.getcwd()
 
-    names = []
-    for submission in submissions:
-        if len(submission.attachments):
-            student = str(course.get_user(submission.user_id))
-            student = student[:student.index(" (")]
+        # Getting Information
+        names = []
+        downloading = []
+        for submission in submissions:
+            if len(submission.attachments):
+                # Get Student Name
+                student = str(course.get_user(submission.user_id))
+                student = student[:student.index(" (")]
 
-            if student == "Test Student":
-                continue
+                # Blacklist Test Student
+                if student == "Test Student":
+                    continue
 
-            print(student)
-            names.append(student.replace(" ", "").replace("-", ""))
+                # Record Student Name
+                print(student)
+                names.append(student.replace(" ", "").replace("-", ""))
 
-            attachment = submission.attachments[0]
-            urlretrieve(attachment.url, attachment.filename)
-    unzipper()
+                # Download Assignment
+                attachment = submission.attachments[0]
+                downloading.append(Thread(target=downloader, args=(attachment.url, attachment.filename)))
+                downloading[-1].start()
+        for download in downloading:
+            download.join()
 
-    data = urlopen("https://web.jpkit.us/grader-rubrics/rubrics.txt")
-    available = []
-    for info in data:
-        available.append(info.decode("utf-8").replace("\n", ""))
-    rubric = choice(available)
-    if rubric == None:
-        return
+        # Get Rubrics (For students that submitted)
+        if config.get("RUBRIC_SOURCE"):
+            data = urlopen(f"{config['RUBRIC_SOURCE']}rubrics.txt")
+            available = []
+            for info in data:
+                available.append(info.decode("utf-8").strip("\n\r"))
+            rubric = choice(available)
+            file = rubric
+        else:
+            available = []
+            for root, dirs, files in os.walk(".."):
+                for file in files:
+                    if file.startswith("Assignment") and file.endswith("-Rubric.xlsx"):
+                        available.append(os.path.join(root, file)[3:])
+            rubric = os.path.join("..", "..", "") + choice(available)
+            file = os.path.split(rubric)[-1]
+        if rubric:
+            print()
+            print("Generating Rubrics...")
 
-    print()
-    print("Generating Rubrics...")
+            folder = file[:-5] + "s"
+            os.mkdir(folder)
+            os.chdir(folder)
+            if config.get("RUBRIC_SOURCE"):
+                urlretrieve(config["RUBRIC_SOURCE"] + rubric, rubric)
+            for name in names:
+                print(name + "-" + file)
+                copy2(rubric, name + "-" + file)
+            if config.get("RUBRIC_SOURCE"):
+                os.remove(rubric)
 
-    folder = rubric[:-5] + "s"
-    os.mkdir(folder)
-    os.chdir(folder)
-    urlretrieve("https://web.jpkit.us/grader-rubrics/" + rubric, rubric)
-    for name in names:
-        print(name + "-" + rubric)
-        copy2(rubric, name + "-" + rubric)
-    os.remove(rubric)
-
-    rubrics = os.getcwd()
-    os.chdir("..")
+            rubrics = os.getcwd()
+            os.chdir("..")
 
 def command(cmd):
     global output
