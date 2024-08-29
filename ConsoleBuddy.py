@@ -393,181 +393,176 @@ def command(cmd):
     global output
     global rubrics
     global top
-    try:
-        original = cmd
-        cmd = cmd.split(" ", 1)
-        cmd[0] = cmd[0].lower()
-        if cmd[0] == "cd":
-            if len(cmd) == 1:
-                native(cmd[0])
-                return
-            os.chdir(fuzzy(cmd[1], dirOnly = True))
-        elif cmd[0] in ["del", "rm"]:
-            if len(cmd) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
-            path = fuzzy(cmd[1])
-            if path == ".":
-                header("\n")
-                output.append("WARNING: " + cmd[0] + " . is disabled as it deletes everything in the current directory.")
-                output.append("If you want to delete everything, delete the folder: cd .. > " + cmd[0] + " folder_name")
-                return
-            if os.path.isfile(path):
-                os.remove(path)
-            else:
-                rmtree(path)
-        elif cmd[0] == "start":
-            if len(cmd) == 1:
-                native(cmd[0])
-                return
-            open_file(fuzzy(cmd[1]))
-        elif cmd[0] == "copy":
-            if len(cmd) == 1:
-                native(cmd[0])
-                return
-            parm = cmd[1].split(" ")
-            copy2(fuzzy(parm[0]), fuzzy(parm[1]))
-        elif cmd[0] == "move":
-            if len(cmd) == 1:
-                native(cmd[0])
-                return
-            parm = cmd[1].split(" ")
-            native(cmd[0] + " \"" + fuzzy(parm[0]) + "\" \"" + fuzzy(parm[1] + "\""))
-        elif cmd[0] == "java":
-            if len(cmd) == 1:
-                native(cmd[0])
-                return
-            native("java " + fuzzy(cmd[1]).replace(".class", ""))
-        elif cmd[0] == "javam":
-            if len(cmd) == 1:
-                native("javac")
-                return
-            native("javac -encoding ISO-8859-1 " + cmd[1])
-        elif cmd[0] == "unzipper":
-            unzipper()
-        elif platform.startswith("win32") and cmd[0] in ["startwith", "sw"]:
-            def openPath(program, file):
-                if file.find("*") != -1:
-                    opener(program, file)
-                else:
-                    file = fuzzy(file)
-                    Popen([programs.get(program), file])
-                    output.append("Opening " + file)
-
-            program = cmd[1].split()
-            if programs.get("Notepad++") and program[0].lower() in ["notepad++", "notepad", "n"]:
-                file = " ".join(program[1:])
-                program = "Notepad++"
-                openPath(program, file)
-            elif programs.get("Sublime Text") and " ".join(program[:2]).lower() == "sublime text":
-                file = " ".join(program[2:])
-                program = "Sublime Text"
-                openPath(program, file)
-            elif programs.get("Sublime Text") and program[0].lower() in ["sublime", "s"]:
-                file = " ".join(program[1:])
-                program = "Sublime Text"
-                openPath(program, file)
-            else:
-                output.append("Program not found or unsupported")
-        elif cmd[0] == "eval":
-            eval(cmd[1])
-        elif platform.startswith("win32") and cmd[0] == "programs":
-            for program in programs.values():
-                output.append(program)
-        # elif cmd[0] == "generate":
-        #     if len(cmd) == 1:
-        #         output.append("The syntax of the command is incorrect.")
-        #         return
-        #     # cmd[1] = cmd[1].split(" ", 1)
-        #     # if len(cmd[1]) == 1:
-        #     #     output.append("The syntax of the command is incorrect.")
-        #     #     return
-        #     generate(cmd[1])
-        elif cmd[0] == "set":
-            if cmd[1].lower() == "rubrics":
-                rubrics = os.getcwd()
-                output.append("rubrics = " + rubrics)
-            elif cmd[1].lower() == "top":
-                top = os.getcwd()
-                output.append("top = " + top)
-        elif cmd[0] == "rubric":
-            if not rubrics:
-                output.append("Location not set")
-            else:
-                if len(cmd) == 1:
-                    output.append("rubrics = " + rubrics)
-                else:
-                    rubric = fuzzy(cmd[1], rubrics)
-                    open_file(rubrics + "\\" + rubric)
-                    output.append("Opening " + rubric)
-        elif cmd[0] == "pretty":
-            for idir in os.listdir():
-                xdir = idir.split("_")
-                if len(xdir) == 4:
-                    name = xdir[3].split("-")[0]
-                    build(name)
-                elif len(xdir) == 5:
-                    name = xdir[4].split("-")[0]
-                    build(name)
-                else:
-                    output.append(" * " + idir)
-        elif cmd[0] == "top":
-            os.chdir(top)
-        elif cmd[0] == "download":
-            web("https://github.com/Nexumi/ConsoleBuddy/releases")
-        elif cmd[0] == "update":
-            updating()
-        elif cmd[0] == "version":
-            output.append("ConsoleBuddy " + v)
-            update()
-        # elif cmd[0] == "setup":
-        #     if len(cmd) == 1:
-        #         output.append("The syntax of the command is incorrect.")
-        #         return
-        #     # cmd[1] = cmd[1].split(" ", 1)
-        #     # if len(cmd[1]) == 1:
-        #     #     output.append("The syntax of the command is incorrect.")
-        #     #     return
-        #     if "submissions.zip" in os.listdir():
-        #         with ZipFile("submissions.zip", 'r') as zipObj:
-        #             # zipObj.extractall(path = "Assignment-" + cmd[1][0])
-        #             zipObj.extractall(path = "Assignment-" + cmd[1])
-        #         os.remove("submissions.zip")
-        #         # os.chdir("Assignment-" + cmd[1][0])
-        #         os.chdir("Assignment-" + cmd[1])
-        #         top = os.getcwd()
-        #         unzipper()
-        #         generate(cmd[1])
-        #         os.chdir("..")
-        #     else:
-        #         output.append("submissions.zip not found")
-        elif cmd[0] == "assignment":
-            if len(cmd) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
-            web("https://csc215.ducta.net/Assignments/Assignment-" + cmd[1] + "/" + "Assignment-" + cmd[1] + ".pdf")
-        elif cmd[0] == "run":
-            if len(cmd) == 1:
-                output.append("The syntax of the command is incorrect.")
-                return
-            java = fuzzy(cmd[1])
-            native("javac -encoding ISO-8859-1 *.java")
-            native("java " + java.replace(".java", ""))
-            for idir in os.listdir():
-                if idir[-6:] == ".class":
-                    os.remove(idir)
-        elif cmd[0] == "clean":
-            for idir in os.listdir():
-                if idir[-6:] == ".class":
-                    os.remove(idir)
-        elif cmd[0] == "canvas":
-            canvas()
+    original = cmd
+    cmd = cmd.split(" ", 1)
+    cmd[0] = cmd[0].lower()
+    if cmd[0] == "cd":
+        if len(cmd) == 1:
+            native(cmd[0])
+            return
+        os.chdir(fuzzy(cmd[1], dirOnly = True))
+    elif cmd[0] in ["del", "rm"]:
+        if len(cmd) == 1:
+            output.append("The syntax of the command is incorrect.")
+            return
+        path = fuzzy(cmd[1])
+        if path == ".":
+            header("\n")
+            output.append("WARNING: " + cmd[0] + " . is disabled as it deletes everything in the current directory.")
+            output.append("If you want to delete everything, delete the folder: cd .. > " + cmd[0] + " folder_name")
+            return
+        if os.path.isfile(path):
+            os.remove(path)
         else:
-            native(original)
-        return True
-    except Exception as e:
-        output.append(e)
-        return False
+            rmtree(path)
+    elif cmd[0] == "start":
+        if len(cmd) == 1:
+            native(cmd[0])
+            return
+        open_file(fuzzy(cmd[1]))
+    elif cmd[0] == "copy":
+        if len(cmd) == 1:
+            native(cmd[0])
+            return
+        parm = cmd[1].split(" ")
+        copy2(fuzzy(parm[0]), fuzzy(parm[1]))
+    elif cmd[0] == "move":
+        if len(cmd) == 1:
+            native(cmd[0])
+            return
+        parm = cmd[1].split(" ")
+        native(cmd[0] + " \"" + fuzzy(parm[0]) + "\" \"" + fuzzy(parm[1] + "\""))
+    elif cmd[0] == "java":
+        if len(cmd) == 1:
+            native(cmd[0])
+            return
+        native("java " + fuzzy(cmd[1]).replace(".class", ""))
+    elif cmd[0] == "javam":
+        if len(cmd) == 1:
+            native("javac")
+            return
+        native("javac -encoding ISO-8859-1 " + cmd[1])
+    elif cmd[0] == "unzipper":
+        unzipper()
+    elif platform.startswith("win32") and cmd[0] in ["startwith", "sw"]:
+        def openPath(program, file):
+            if file.find("*") != -1:
+                opener(program, file)
+            else:
+                file = fuzzy(file)
+                Popen([programs.get(program), file])
+                output.append("Opening " + file)
+
+        program = cmd[1].split()
+        if programs.get("Notepad++") and program[0].lower() in ["notepad++", "notepad", "n"]:
+            file = " ".join(program[1:])
+            program = "Notepad++"
+            openPath(program, file)
+        elif programs.get("Sublime Text") and " ".join(program[:2]).lower() == "sublime text":
+            file = " ".join(program[2:])
+            program = "Sublime Text"
+            openPath(program, file)
+        elif programs.get("Sublime Text") and program[0].lower() in ["sublime", "s"]:
+            file = " ".join(program[1:])
+            program = "Sublime Text"
+            openPath(program, file)
+        else:
+            output.append("Program not found or unsupported")
+    elif cmd[0] == "eval":
+        eval(cmd[1])
+    elif platform.startswith("win32") and cmd[0] == "programs":
+        for program in programs.values():
+            output.append(program)
+    # elif cmd[0] == "generate":
+    #     if len(cmd) == 1:
+    #         output.append("The syntax of the command is incorrect.")
+    #         return
+    #     # cmd[1] = cmd[1].split(" ", 1)
+    #     # if len(cmd[1]) == 1:
+    #     #     output.append("The syntax of the command is incorrect.")
+    #     #     return
+    #     generate(cmd[1])
+    elif cmd[0] == "set":
+        if cmd[1].lower() == "rubrics":
+            rubrics = os.getcwd()
+            output.append("rubrics = " + rubrics)
+        elif cmd[1].lower() == "top":
+            top = os.getcwd()
+            output.append("top = " + top)
+    elif cmd[0] == "rubric":
+        if not rubrics:
+            output.append("Location not set")
+        else:
+            if len(cmd) == 1:
+                output.append("rubrics = " + rubrics)
+            else:
+                rubric = fuzzy(cmd[1], rubrics)
+                open_file(rubrics + "\\" + rubric)
+                output.append("Opening " + rubric)
+    elif cmd[0] == "pretty":
+        for idir in os.listdir():
+            xdir = idir.split("_")
+            if len(xdir) == 4:
+                name = xdir[3].split("-")[0]
+                build(name)
+            elif len(xdir) == 5:
+                name = xdir[4].split("-")[0]
+                build(name)
+            else:
+                output.append(" * " + idir)
+    elif cmd[0] == "top":
+        os.chdir(top)
+    elif cmd[0] == "download":
+        web("https://github.com/Nexumi/ConsoleBuddy/releases")
+    elif cmd[0] == "update":
+        updating()
+    elif cmd[0] == "version":
+        output.append("ConsoleBuddy " + v)
+        update()
+    # elif cmd[0] == "setup":
+    #     if len(cmd) == 1:
+    #         output.append("The syntax of the command is incorrect.")
+    #         return
+    #     # cmd[1] = cmd[1].split(" ", 1)
+    #     # if len(cmd[1]) == 1:
+    #     #     output.append("The syntax of the command is incorrect.")
+    #     #     return
+    #     if "submissions.zip" in os.listdir():
+    #         with ZipFile("submissions.zip", 'r') as zipObj:
+    #             # zipObj.extractall(path = "Assignment-" + cmd[1][0])
+    #             zipObj.extractall(path = "Assignment-" + cmd[1])
+    #         os.remove("submissions.zip")
+    #         # os.chdir("Assignment-" + cmd[1][0])
+    #         os.chdir("Assignment-" + cmd[1])
+    #         top = os.getcwd()
+    #         unzipper()
+    #         generate(cmd[1])
+    #         os.chdir("..")
+    #     else:
+    #         output.append("submissions.zip not found")
+    elif cmd[0] == "assignment":
+        if len(cmd) == 1:
+            output.append("The syntax of the command is incorrect.")
+            return
+        web("https://csc215.ducta.net/Assignments/Assignment-" + cmd[1] + "/" + "Assignment-" + cmd[1] + ".pdf")
+    elif cmd[0] == "run":
+        if len(cmd) == 1:
+            output.append("The syntax of the command is incorrect.")
+            return
+        java = fuzzy(cmd[1])
+        native("javac -encoding ISO-8859-1 *.java")
+        native("java " + java.replace(".java", ""))
+        for idir in os.listdir():
+            if idir[-6:] == ".class":
+                os.remove(idir)
+    elif cmd[0] == "clean":
+        for idir in os.listdir():
+            if idir[-6:] == ".class":
+                os.remove(idir)
+    elif cmd[0] == "canvas":
+        canvas()
+    else:
+        native(original)
 
 if platform.startswith("win32"):
     programs = {}
@@ -610,7 +605,10 @@ update()
 header()
 while cmd.lower().strip() != "exit":
     cmd = " ".join(input("Console> ").split())
-    command(cmd)
+    try:
+        command(cmd)
+    except Exception as e:
+        output.append(e)
     header()
 
 clear()
