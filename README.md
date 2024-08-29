@@ -42,10 +42,10 @@ All commands support fuzzy search (You do not have to spell out the full file na
 ✔️ Linux
 
 ## Download
-| System | Program |
-| --- | --- |
-| Windows (x86_64) | [ConsoleBuddy.exe](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy.exe) |
-| Linux (x86_64) | [ConsoleBuddy](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy) | Run `chmod +x ConsoleBuddy`<br>Run `./ConsoleBuddy` |
+| System | Program | Extra |
+| --- | --- | --- |
+| Windows (x86_64) | [ConsoleBuddy.exe](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddy.exe) | `Windows protected your PC` > `More info` >  `Run anyway` |
+| Linux (x86_64) | [ConsoleBuddyLinux](https://github.com/Nexumi/ConsoleBuddy/releases/latest/download/ConsoleBuddyLinux) | Open Terminal<br>Run `cd Downloads`<br>Run `chmod +x StudentAssignmentDownloaderLinux`<br>Run `./StudentAssignmentDownloaderLinx` |
 
 ## Direct Run
 - Install [Python](https://www.python.org/)
