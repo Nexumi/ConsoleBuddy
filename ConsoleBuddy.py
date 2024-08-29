@@ -286,7 +286,7 @@ def downloader(url, filename):
 def urlfix(url):
     if url:
         if not url.startswith("https://") and not url.startswith("http://"):
-            url = f"https://{url}"
+            url = "https://" + url
         if not url.endswith("/"):
             url += "/"
     return url
@@ -400,7 +400,7 @@ def canvas():
 
         # Get Rubrics (For students that submitted)
         if config.get("RUBRIC_SOURCE"):
-            data = urlopen(f"{config['RUBRIC_SOURCE']}rubrics.txt")
+            data = urlopen(config["RUBRIC_SOURCE"] + "rubrics.txt")
             available = []
             for info in data:
                 available.append(info.decode("utf-8").strip("\n\r"))
@@ -624,15 +624,16 @@ try:
 except:
     pass
 
-if "ConsoleBuddyUpdater.exe" in os.listdir():
-    sleep(1)
-    os.remove("ConsoleBuddyUpdater.exe")
-if "ConsoleBuddyUpdater" in os.listdir():
-    sleep(1)
-    os.remove("ConsoleBuddyUpdater")
-if "ConsoleBuddyUpdaterLinux" in os.listdir():
-    sleep(1)
-    os.remove("ConsoleBuddyUpdaterLinux")
+if "~" not in v:
+    if "ConsoleBuddyUpdater.exe" in os.listdir():
+        sleep(1)
+        os.remove("ConsoleBuddyUpdater.exe")
+    if "ConsoleBuddyUpdater" in os.listdir():
+        sleep(1)
+        os.remove("ConsoleBuddyUpdater")
+    if "ConsoleBuddyUpdaterLinux" in os.listdir():
+        sleep(1)
+        os.remove("ConsoleBuddyUpdaterLinux")
 
 green = "\033[32m"
 blue = "\033[34m"
