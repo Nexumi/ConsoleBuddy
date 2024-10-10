@@ -31,7 +31,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 - assignment - (New) Opens up the assignment pdf
   - Usage: assignment \<assignment\>
 - update - (New) Updates ConsoleBuddy to the latest version
-- run - (New) compiles, runs, cleanup
+- run - (New) compiles and runs java file
+- clean - (New) clean up `.class` files
 - canvas - (New) Download student assignments with rubrics
 
 ## Support
