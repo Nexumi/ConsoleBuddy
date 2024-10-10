@@ -57,8 +57,8 @@ All commands support fuzzy search (You do not have to spell out the full file na
 
 ## Self Compilation
 - Install [Python](https://www.python.org/)
-- Install [PyInstaller](https://pyinstaller.org/en/stable/)
 - (Optional) Download [UPX](https://upx.github.io/)
+- Run `pip install canvasapi pyinstaller` (Only needs to be run once)
 - Run `pyinstaller --onefile ConsoleBuddy.py`
 - Grab the file from the `dist` folder
 - Discard everything else it creates
