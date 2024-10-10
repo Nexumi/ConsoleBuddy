@@ -595,9 +595,6 @@ def command(cmd):
         java = fuzzy(cmd[1])
         native("javac -encoding ISO-8859-1 *.java")
         native("java " + java.replace(".java", ""))
-        for idir in os.listdir():
-            if idir[-6:] == ".class":
-                os.remove(idir)
     elif cmd[0] == "clean":
         for idir in os.listdir():
             if idir[-6:] == ".class":
