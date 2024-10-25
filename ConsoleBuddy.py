@@ -1,4 +1,4 @@
-v = "v0.8.4~dev1"
+v = "v0.8.4~dev3"
 
 import os
 import ssl
@@ -410,7 +410,7 @@ def canvas():
             available = []
             for root, dirs, files in os.walk(".."):
                 for file in files:
-                    if file.startswith("Assignment") and file.endswith("-Rubric.xlsx"):
+                    if (file.startswith("Assignment-") or file.startswith("Exam-")) and file.endswith("-Rubric.xlsx"):
                         available.append(os.path.join(root, file)[3:])
             rubric = os.path.join("..", "..", "") + choice(available)
             file = os.path.split(rubric)[-1]
