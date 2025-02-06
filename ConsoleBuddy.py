@@ -1,7 +1,8 @@
-v = "v0.8.4"
+v = "v0.8.5~dev1"
 
 import os
 import ssl
+import requests
 from time import sleep
 from zipfile import ZipFile
 from canvasapi import Canvas
@@ -54,38 +55,23 @@ def pyinstaller(file = argv[0].split(os.path.sep)[-1]):
     rmtree("dist")
 
 def update():
-    def dev(local, remote):
-        local = local.split(".")
-        remote = remote.split(".")
-        if int(local[0][1:]) < int(remote[0][1:]):
-            return True
-        elif int(local[0][1:]) > int(remote[0][1:]):
-            return False
-        elif int(local[1]) < int(remote[1]):
-            return True
-        elif int(local[1]) > int(remote[1]):
-            return False
-        else:
-            try:
-                if int(local[2][:len(remote[2])]) < int(remote[2]):
-                    return True
-            except:
-                pass
-        return False
+    def new(local, remote):
+        def digitsOnly(input_string):
+            return int("".join([char for char in input_string if char.isdigit()]))
+        local = tuple(digitsOnly(part) for part in local.split("."))
+        remote = tuple(digitsOnly(part) for part in remote.split("."))
+        return local < remote
 
     global cmd
-    url = "https://raw.githubusercontent.com/Nexumi/ConsoleBuddy/main/ConsoleBuddy.py"
-    try:
-        data = urlopen(url)
-    except:
-        return
-    for line in data:
-        r = str(line)[7:-6]
-        data.close()
-    if dev(v, r):
-        output.append("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
-        output.append("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
-        cmd = "update"
+    url = "https://api.github.com/repos/Nexumi/ConsoleBuddy/releases/latest"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        r = data.get("tag_name")
+        if new(v, r):
+            output.append("[\033[34mnotice\033[0m] A new release of ConsoleBuddy is available: \033[31m" + v + "\033[0m -> \033[32m" + r + "\033[0m")
+            output.append("[\033[34mnotice\033[0m] To update, run: \033[32mupdate\033[0m")
+            cmd = "update"
 
 def updating():
     global cmd
